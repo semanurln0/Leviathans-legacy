@@ -161,7 +161,10 @@ def game_loop(screen, buttons):
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 mouse_up = True
+            if event.type == pygame.QUIT:
+                return GameState.QUIT
         screen.fill(BLUE)
+
 
         for button in buttons:
             ui_action = button.update(pygame.mouse.get_pos(), mouse_up)
