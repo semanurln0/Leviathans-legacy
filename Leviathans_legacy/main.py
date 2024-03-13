@@ -119,6 +119,7 @@ class TextBox(Sprite):
 
 def main():
     game_state = GameState(0)
+    player = Player()
     pygame.init()
 
     info = pygame.display.Info()
@@ -128,22 +129,21 @@ def main():
 
     while True:
         if game_state == GameState.TITLE:
-            game_state = title_screen(screen)
+            game_state = title_screen(screen, game_state)
 
         if game_state == GameState.MAIN_SCREEN:
             player = Player(0)
-            game_state = play_level(screen, player)
+            game_state = play_level(screen, player, game_state)
 
         if game_state == GameState.NEXT_LEVEL:
-            player.current_level += 1
-            game_state = play_level(screen, player)
+            game_state = play_level(screen, player, game_state)
 
         if game_state == GameState.QUIT:
             pygame.quit()
             return
 
 
-def title_screen(screen):
+def title_screen(screen, game_state):
     title = TextBox(
         center_position=(screen.get_width()/2, 100),
         font_size=50,
@@ -157,7 +157,7 @@ def title_screen(screen):
         bg_rgb=BLUE,
         text_rgb=WHITE,
         text="Start",
-        action=GameState.MAIN_SCREEN,
+        action=game_state.MAIN_SCREEN,
     )
     quit_btn = UIElement(
         center_position=(screen.get_width()/2, 300),
@@ -165,22 +165,22 @@ def title_screen(screen):
         bg_rgb=BLUE,
         text_rgb=WHITE,
         text="Quit",
-        action=GameState.QUIT,
+        action=game_state.QUIT,
     )
 
     buttons = RenderUpdates(title, start_btn, quit_btn)
     pygame.display.flip()
-    return game_loop(screen, buttons)
+    return game_loop(screen, buttons, game_state)
 
 
-def play_level(screen, player):
+def play_level(screen, player, game_state):
     return_btn = UIElement(
         center_position=(140, 570),
         font_size=20,
         bg_rgb=BLUE,
         text_rgb=WHITE,
         text="Return to main menu",
-        action=GameState.TITLE,
+        action=game_state.TITLE,
     )
 
     nextlevel_btn = UIElement(
@@ -189,21 +189,21 @@ def play_level(screen, player):
         bg_rgb=BLUE,
         text_rgb=WHITE,
         text=f"Next level ({player.current_level + 1})",
-        action=GameState.NEXT_LEVEL,
+        action=game_state.NEXT_LEVEL,
     )
 
     buttons = RenderUpdates(return_btn, nextlevel_btn)
 
-    return game_loop(screen, buttons)
+    return game_loop(screen, buttons, game_state)
 
 
-def game_loop(screen, buttons):
+def game_loop(screen, buttons, game_state):
     # Handles screen
     while True:
-        return input(screen, buttons)
+        return inputs(screen, buttons, game_state)
 
 
-def input(screen, buttons):
+def inputs(screen, buttons, game_state):
     mouse_up = False
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -220,8 +220,7 @@ def input(screen, buttons):
             return ui_action
     buttons.draw(screen)
     pygame.display.flip()
-    return GameState.TITLE
-
+    return game_state
 
 class GameState(Enum):
     QUIT = -1
