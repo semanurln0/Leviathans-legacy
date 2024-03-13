@@ -2,11 +2,13 @@ import pygame
 
 pygame.init()
 
-SCREEN_HEIGHT = 800
-SCREEN_WIDTH = 800
 
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+info = pygame.display.Info()
+w = info.current_w
+h = info.current_h -50
 
+screen = pygame.display.set_mode((w, h), pygame.SCALED | pygame.RESIZABLE)
+screen.fill((255, 255, 255))
 running = True
 while running:
     for event in pygame.event.get():
