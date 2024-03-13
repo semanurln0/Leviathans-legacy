@@ -81,6 +81,41 @@ class UIElement(Sprite):
         surface.blit(self.image, self.rect)
 
 
+class TextBox(Sprite):
+    # UI class for any window
+
+    def __init__(self, center_position, text, font_size, bg_rgb, text_rgb):
+        # function arguments:
+        #    center_position - tuple (x, y)
+        #    text - string of text to write
+        #    font_size - int
+        #    bg_rgb (background colour) - tuple (r, g, b)
+        #    text_rgb (text colour) - tuple (r, g, b)
+        #    action - the gamestate change associated with this button
+        default_image = create_surface_with_text(
+            text=text, font_size=font_size, text_rgb=text_rgb, bg_rgb=bg_rgb
+        )
+        self.images = [default_image]
+
+        self.rects = [
+            default_image.get_rect(center=center_position),
+        ]
+
+        super().__init__()
+
+    @property
+    def image(self):
+        return self.images[0]
+
+    @property
+    def rect(self):
+        return self.rects[0]
+
+    def draw(self, surface):
+        # Draws UI element
+        surface.blit(self.image, self.rect)
+
+
 def main():
     game_state = GameState(0)
     pygame.init()
@@ -124,8 +159,15 @@ def title_screen(screen):
         text="Quit",
         action=GameState.QUIT,
     )
+    title = TextBox(
+        center_position=(400, 200),
+        font_size=50,
+        bg_rgb=BLUE,
+        text_rgb=WHITE,
+        text="Leviathans legacy",
+    )
 
-    buttons = RenderUpdates(start_btn, quit_btn)
+    buttons = RenderUpdates(start_btn, quit_btn, title)
 
     return game_loop(screen, buttons)
 
