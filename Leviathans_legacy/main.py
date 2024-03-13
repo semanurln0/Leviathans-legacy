@@ -4,6 +4,7 @@ from pygame.sprite import Sprite
 from enum import Enum
 from pygame.sprite import RenderUpdates
 
+
 pygame.init()
 
 BLUE = (26, 79, 101)
@@ -123,7 +124,7 @@ def main():
     info = pygame.display.Info()
     w = info.current_w
     h = info.current_h - 50
-    screen = pygame.display.set_mode((w, h), pygame.SCALED | pygame.RESIZABLE)
+    screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
 
     while True:
         if game_state == GameState.TITLE:
@@ -143,8 +144,15 @@ def main():
 
 
 def title_screen(screen):
+    title = TextBox(
+        center_position=(screen.get_width()/2, 100),
+        font_size=50,
+        bg_rgb=BLUE,
+        text_rgb=WHITE,
+        text="Leviathans legacy",
+    )
     start_btn = UIElement(
-        center_position=(400, 400),
+        center_position=(screen.get_width()/2, 200),
         font_size=30,
         bg_rgb=BLUE,
         text_rgb=WHITE,
@@ -152,23 +160,16 @@ def title_screen(screen):
         action=GameState.MAIN_SCREEN,
     )
     quit_btn = UIElement(
-        center_position=(400, 500),
+        center_position=(screen.get_width()/2, 300),
         font_size=30,
         bg_rgb=BLUE,
         text_rgb=WHITE,
         text="Quit",
         action=GameState.QUIT,
     )
-    title = TextBox(
-        center_position=(400, 200),
-        font_size=50,
-        bg_rgb=BLUE,
-        text_rgb=WHITE,
-        text="Leviathans legacy",
-    )
 
-    buttons = RenderUpdates(start_btn, quit_btn, title)
-
+    buttons = RenderUpdates(title, start_btn, quit_btn)
+    pygame.display.flip()
     return game_loop(screen, buttons)
 
 
@@ -199,22 +200,27 @@ def play_level(screen, player):
 def game_loop(screen, buttons):
     # Handles screen
     while True:
-        mouse_up = False
-        for event in pygame.event.get():
-            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-                mouse_up = True
-            if event.type == pygame.QUIT:
-                return GameState.QUIT
-        screen.fill(BLUE)
+        return input(screen, buttons)
 
 
-        for button in buttons:
-            ui_action = button.update(pygame.mouse.get_pos(), mouse_up)
-            if ui_action is not None:
-                return ui_action
+def input(screen, buttons):
+    mouse_up = False
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            return GameState.QUIT
+        if event.type == pygame.VIDEORESIZE:
+            pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            mouse_up = True
+    screen.fill(BLUE)
 
-        buttons.draw(screen)
-        pygame.display.flip()
+    for button in buttons:
+        ui_action = button.update(pygame.mouse.get_pos(), mouse_up)
+        if ui_action is not None:
+            return ui_action
+    buttons.draw(screen)
+    pygame.display.flip()
+    return GameState.TITLE
 
 
 class GameState(Enum):
