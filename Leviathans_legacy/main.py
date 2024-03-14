@@ -1,13 +1,12 @@
 import pygame
 import pygame.freetype
 import asyncio
-from pygame.sprite import Sprite
 from enum import Enum
 from pygame.sprite import RenderUpdates
 import UIElements
 
 pygame.init()
-
+# Colours
 BLUE = (26, 79, 101)
 WHITE = (200, 200, 200)
 RED = (100, 0, 0)
@@ -16,10 +15,17 @@ GREEN = (0, 100, 0)
 
 class Player:
     # Our player info
-    def __init__(self, score=0, lives=0, current_level=0):
-        self.score = score
-        self.lives = lives
-        self.current_level = current_level
+    def __init__(self):
+        self.food = 0
+        self.steel = 0
+        self.soldiers = 0
+
+
+class GameState(Enum):
+    QUIT = -1
+    TITLE = 0
+    MAIN_SCREEN = 1
+    NEXT_LEVEL = 2
 
 
 async def main():
@@ -39,10 +45,7 @@ async def main():
             game_state = title_screen(screen, game_state)
 
         if game_state == GameState.MAIN_SCREEN:
-            player = Player(0)
-            game_state = play_level(screen, player, game_state)
-
-        if game_state == GameState.NEXT_LEVEL:
+            player = Player()
             game_state = play_level(screen, player, game_state)
 
         if game_state == GameState.QUIT:
@@ -95,7 +98,7 @@ def play_level(screen, player, game_state):
         font_size=30,
         bg_rgb=BLUE,
         text_rgb=WHITE,
-        text=f"Next level ({player.current_level + 1})",
+        text="Next level",
         action=game_state.NEXT_LEVEL,
     )
 
@@ -129,13 +132,6 @@ def inputs(screen, buttons, game_state):
     buttons.draw(screen)
     pygame.display.flip()
     return game_state
-
-
-class GameState(Enum):
-    QUIT = -1
-    TITLE = 0
-    MAIN_SCREEN = 1
-    NEXT_LEVEL = 2
 
 
 asyncio.run(main())

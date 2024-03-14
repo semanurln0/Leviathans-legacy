@@ -1,6 +1,6 @@
 import pygame
 import pygame.freetype
-from pygame.sprite import RenderUpdates, Sprite
+from pygame.sprite import Sprite
 
 
 def create_surface_with_text(text, font_size, text_rgb, bg_rgb):
