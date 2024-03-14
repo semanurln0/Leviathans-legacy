@@ -30,7 +30,6 @@ class GameState(Enum):
 
 async def main():
     game_state = GameState(0)
-    player = Player()
     pygame.init()
 
     info = pygame.display.Info()
@@ -45,8 +44,7 @@ async def main():
             game_state = title_screen(screen, game_state)
 
         if game_state == GameState.MAIN_SCREEN:
-            player = Player()
-            game_state = play_level(screen, player, game_state)
+            game_state = play_level(screen, game_state)
 
         if game_state == GameState.QUIT:
             pygame.quit()
@@ -83,7 +81,7 @@ def title_screen(screen, game_state):
     return game_loop(screen, buttons, game_state)
 
 
-def play_level(screen, player, game_state):
+def play_level(screen, game_state):
     return_btn = UIElements.UIElement(
         center_position=(140, 570),
         font_size=20,
@@ -99,7 +97,7 @@ def play_level(screen, player, game_state):
         bg_rgb=BLUE,
         text_rgb=WHITE,
         text="Next level",
-        action=game_state.NEXT_LEVEL,
+        action=game_state.QUIT,
     )
 
     buttons = RenderUpdates(return_btn, nextlevel_btn)
@@ -111,7 +109,6 @@ def game_loop(screen, buttons, game_state):
     # Handles screen
     while True:
         return inputs(screen, buttons, game_state)
-
 
 
 def inputs(screen, buttons, game_state):
