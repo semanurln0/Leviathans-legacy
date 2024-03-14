@@ -1,9 +1,10 @@
 import pygame
 import pygame.freetype
+import asyncio
 from pygame.sprite import Sprite
 from enum import Enum
 from pygame.sprite import RenderUpdates
-
+import UIElements
 
 pygame.init()
 
@@ -21,103 +22,7 @@ class Player:
         self.current_level = current_level
 
 
-def create_surface_with_text(text, font_size, text_rgb, bg_rgb):
-    # returns surface with text
-    font = pygame.freetype.SysFont("Helvetica", font_size, bold=True)
-    surface, _ = font.render(text=text, fgcolor=text_rgb, bgcolor=bg_rgb)
-    return surface.convert_alpha()
-
-
-class UIElement(Sprite):
-    # UI class for any window
-
-    def __init__(self, center_position, text, font_size, bg_rgb, text_rgb, action=None):
-        # function arguments:
-        #    center_position - tuple (x, y)
-        #    text - string of text to write
-        #    font_size - int
-        #    bg_rgb (background colour) - tuple (r, g, b)
-        #    text_rgb (text colour) - tuple (r, g, b)
-        #    action - the gamestate change associated with this button
-        self.mouse_over = False
-
-        default_image = create_surface_with_text(
-            text=text, font_size=font_size, text_rgb=text_rgb, bg_rgb=bg_rgb
-        )
-
-        highlighted_image = create_surface_with_text(
-            text=text, font_size=font_size * 1.2, text_rgb=text_rgb, bg_rgb=bg_rgb
-        )
-
-        self.images = [default_image, highlighted_image]
-
-        self.rects = [
-            default_image.get_rect(center=center_position),
-            highlighted_image.get_rect(center=center_position),
-        ]
-
-        self.action = action
-
-        super().__init__()
-
-    @property
-    def image(self):
-        return self.images[1] if self.mouse_over else self.images[0]
-
-    @property
-    def rect(self):
-        return self.rects[1] if self.mouse_over else self.rects[0]
-
-    def update(self, mouse_pos, mouse_up):
-        # Handles mouse selection, specifically hover and clicking
-        if self.rect.collidepoint(mouse_pos):
-            self.mouse_over = True
-            if mouse_up:
-                return self.action
-        else:
-            self.mouse_over = False
-
-    def draw(self, surface):
-        # Draws UI element
-        surface.blit(self.image, self.rect)
-
-
-class TextBox(Sprite):
-    # UI class for any window
-
-    def __init__(self, center_position, text, font_size, bg_rgb, text_rgb):
-        # function arguments:
-        #    center_position - tuple (x, y)
-        #    text - string of text to write
-        #    font_size - int
-        #    bg_rgb (background colour) - tuple (r, g, b)
-        #    text_rgb (text colour) - tuple (r, g, b)
-        #    action - the gamestate change associated with this button
-        default_image = create_surface_with_text(
-            text=text, font_size=font_size, text_rgb=text_rgb, bg_rgb=bg_rgb
-        )
-        self.images = [default_image]
-
-        self.rects = [
-            default_image.get_rect(center=center_position),
-        ]
-
-        super().__init__()
-
-    @property
-    def image(self):
-        return self.images[0]
-
-    @property
-    def rect(self):
-        return self.rects[0]
-
-    def draw(self, surface):
-        # Draws UI element
-        surface.blit(self.image, self.rect)
-
-
-def main():
+async def main():
     game_state = GameState(0)
     player = Player()
     pygame.init()
@@ -128,6 +33,8 @@ def main():
     screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
 
     while True:
+        await asyncio.sleep(0)
+
         if game_state == GameState.TITLE:
             game_state = title_screen(screen, game_state)
 
@@ -144,23 +51,23 @@ def main():
 
 
 def title_screen(screen, game_state):
-    title = TextBox(
-        center_position=(screen.get_width()/2, 100),
+    title = UIElements.TextBox(
+        center_position=(screen.get_width() / 2, 100),
         font_size=50,
         bg_rgb=BLUE,
         text_rgb=WHITE,
         text="Leviathans legacy",
     )
-    start_btn = UIElement(
-        center_position=(screen.get_width()/2, 200),
+    start_btn = UIElements.UIElement(
+        center_position=(screen.get_width() / 2, 200),
         font_size=30,
         bg_rgb=BLUE,
         text_rgb=WHITE,
         text="Start",
         action=game_state.MAIN_SCREEN,
     )
-    quit_btn = UIElement(
-        center_position=(screen.get_width()/2, 300),
+    quit_btn = UIElements.UIElement(
+        center_position=(screen.get_width() / 2, 300),
         font_size=30,
         bg_rgb=BLUE,
         text_rgb=WHITE,
@@ -174,7 +81,7 @@ def title_screen(screen, game_state):
 
 
 def play_level(screen, player, game_state):
-    return_btn = UIElement(
+    return_btn = UIElements.UIElement(
         center_position=(140, 570),
         font_size=20,
         bg_rgb=BLUE,
@@ -183,7 +90,7 @@ def play_level(screen, player, game_state):
         action=game_state.TITLE,
     )
 
-    nextlevel_btn = UIElement(
+    nextlevel_btn = UIElements.UIElement(
         center_position=(400, 400),
         font_size=30,
         bg_rgb=BLUE,
@@ -201,6 +108,7 @@ def game_loop(screen, buttons, game_state):
     # Handles screen
     while True:
         return inputs(screen, buttons, game_state)
+
 
 
 def inputs(screen, buttons, game_state):
@@ -222,6 +130,7 @@ def inputs(screen, buttons, game_state):
     pygame.display.flip()
     return game_state
 
+
 class GameState(Enum):
     QUIT = -1
     TITLE = 0
@@ -229,5 +138,4 @@ class GameState(Enum):
     NEXT_LEVEL = 2
 
 
-if __name__ == "__main__":
-    main()
+asyncio.run(main())
