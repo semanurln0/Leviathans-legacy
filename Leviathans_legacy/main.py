@@ -4,6 +4,9 @@ import asyncio
 from enum import Enum
 from pygame.sprite import RenderUpdates
 import UIElements
+import Player
+from Buildings import building1
+
 
 pygame.init()
 # Colours
@@ -12,13 +15,6 @@ WHITE = (200, 200, 200)
 RED = (100, 0, 0)
 GREEN = (0, 100, 0)
 
-
-class Player:
-    # Our player info
-    def __init__(self):
-        self.food = 0
-        self.steel = 0
-        self.soldiers = 0
 
 
 class GameState(Enum):
@@ -45,7 +41,7 @@ async def main():
 
         if game_state == GameState.MAIN_SCREEN:
             game_state = play_level(screen, game_state)
-
+        
         if game_state == GameState.QUIT:
             pygame.quit()
             return
@@ -75,7 +71,7 @@ def title_screen(screen, game_state):
         text="Quit",
         action=game_state.QUIT,
     )
-
+    
     buttons = RenderUpdates(title, start_btn, quit_btn)
     pygame.display.flip()
     return game_loop(screen, buttons, game_state)
