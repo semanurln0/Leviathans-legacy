@@ -1,9 +1,11 @@
 import pygame
 import pygame.freetype
-import asyncio
+import time
+import pygame_textinput
 from enum import Enum
 from pygame.sprite import RenderUpdates
 import UIElements
+import socket
 
 pygame.init()
 # Colours
@@ -11,6 +13,7 @@ BLUE = (26, 79, 101)
 WHITE = (200, 200, 200)
 RED = (100, 0, 0)
 GREEN = (0, 100, 0)
+BLACK = (0, 0, 0)
 
 
 class GameState(Enum):
@@ -20,10 +23,17 @@ class GameState(Enum):
     NEXT_LEVEL = 2
 
 
-async def main():
+clock = pygame.time.Clock()
+
+
+def main():
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_ip = "127.0.0.1"
+    server_port = 8000
+    # establish connection with server
+    client.connect((server_ip, server_port))
     game_state = GameState(0)
     pygame.init()
-    clock = pygame.time.Clock()
 
     info = pygame.display.Info()
     w = info.current_w
@@ -31,8 +41,7 @@ async def main():
     screen = pygame.display.set_mode((w, h), pygame.RESIZABLE)
 
     while True:
-        await asyncio.sleep(0)
-        clock.tick(60)
+        pygame.key.set_repeat(200, 25)
         if game_state == GameState.TITLE:
             game_state = title_screen(screen, game_state)
 
@@ -40,6 +49,7 @@ async def main():
             game_state = play_level(screen, game_state)
 
         if game_state == GameState.QUIT:
+            client.close()
             pygame.quit()
             return
 
@@ -68,28 +78,12 @@ def title_screen(screen, game_state):
         text="Quit",
         action=game_state.QUIT,
     )
-    login_box = UIElements.InputBox(
-        x=screen.get_width() / 2,
-        y=400,
-        w=300,
-        h=60,
-        passive_rgb=WHITE,
-        active_rgb=WHITE,
-        text="Enter username",
-    )
-    login_box = UIElements.TextBox2(
-        center_position=(screen.get_width() / 2, 400),
-        font_size=30,
-        bg_rgb=BLUE,
-        text_rgb=WHITE,
-        text="Enter Username",
-        action=game_state.QUIT,
-    )
+    login_box = UIElements.InputBox(115, 170, 250, 36, "Enter your username")
 
-    buttons = RenderUpdates(title, start_btn, quit_btn, login_box)
-    input_boxes = [login_box]
+    buttons = RenderUpdates(title, start_btn, quit_btn)
+    inputboxes = [login_box]
     pygame.display.flip()
-    return game_loop(screen, buttons, game_state)
+    return game_loop(screen, buttons, inputboxes, game_state)
 
 
 def play_level(screen, game_state):
@@ -112,20 +106,22 @@ def play_level(screen, game_state):
     )
 
     buttons = RenderUpdates(return_btn, nextlevel_btn)
-    input_boxes = []
+    inputboxes = []
 
-    return game_loop(screen, buttons, game_state)
+    return game_loop(screen, buttons, inputboxes, game_state)
 
 
-def game_loop(screen, buttons, game_state):
+def game_loop(screen, buttons, inputboxes, game_state):
     # Handles screen
     while True:
-        return inputs(screen, buttons, game_state)
+        return inputs(screen, buttons, inputboxes, game_state)
 
 
-def inputs(screen, buttons, game_state):
+def inputs(screen, buttons, inputboxes, game_state):
+    screen.fill(BLUE)
     mouse_up = False
-    for event in pygame.event.get():
+    event_list = pygame.event.get()
+    for event in event_list:
         if event.type == pygame.QUIT:
             return GameState.QUIT
         if event.type == pygame.VIDEORESIZE:
@@ -136,10 +132,20 @@ def inputs(screen, buttons, game_state):
             ui_action = button.update(pygame.mouse.get_pos(), mouse_up, event)
             if ui_action is not None:
                 return ui_action
-        screen.fill(BLUE)
-        buttons.draw(screen)
+        for box in inputboxes:
+            box.handle_event(event)
+
+    for box in inputboxes:
+        box.update()
+
+    for box in inputboxes:
+        box.draw(screen)
+
+    buttons.draw(screen)
     pygame.display.flip()
+    pygame.display.update()
+    clock.tick(60)
     return game_state
 
 
-asyncio.run(main())
+main()
