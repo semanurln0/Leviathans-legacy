@@ -65,21 +65,22 @@ def title_screen(screen, game_state):
         font_size=30,
         bg_rgb=BLUE,
         text_rgb=WHITE,
-        text="Start",
+        text="Login",
         action=game_state.MAIN_SCREEN,
     )
     quit_btn = UIElements.UIElement(
-        center_position=(screen.get_width() / 2, 300),
+        center_position=(screen.get_width() / 2, 400),
         font_size=30,
         bg_rgb=BLUE,
         text_rgb=WHITE,
         text="Quit",
         action=game_state.QUIT,
     )
-    login_box = UIElements.InputBox(115, 170, 250, 36, "Enter your username")
+    login_box = UIElements.InputBox((screen.get_width()/2) - 125, 250, 250, 36, "Enter your username")
+    pass_box = UIElements.InputBoxPass((screen.get_width() / 2) - 125, 300, 250, 36, "Enter your password")
 
     buttons = RenderUpdates(title, start_btn, quit_btn)
-    inputboxes = [login_box]
+    inputboxes = [login_box, pass_box]
     return inputs(screen, buttons, inputboxes, game_state)
 
 
@@ -143,6 +144,7 @@ def inputs(screen, buttons, inputboxes, game_state):
         buttons.draw(screen)
         pygame.display.update()
         clock.tick(30)
+
         if previous_state == game_state:
             pass
         else:
