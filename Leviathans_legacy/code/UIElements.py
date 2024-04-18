@@ -124,6 +124,7 @@ class InputBox:
             if self.rect.collidepoint(event.pos):
                 # Toggle the active variable.
                 self.active = not self.active
+                self.text = ""
             else:
                 self.active = False
         if event.type == pygame.KEYDOWN:

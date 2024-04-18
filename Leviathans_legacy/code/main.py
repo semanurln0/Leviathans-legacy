@@ -1,7 +1,5 @@
 import pygame
 import pygame.freetype
-import time
-import pygame_textinput
 from enum import Enum
 from pygame.sprite import RenderUpdates
 import UIElements
@@ -82,8 +80,7 @@ def title_screen(screen, game_state):
 
     buttons = RenderUpdates(title, start_btn, quit_btn)
     inputboxes = [login_box]
-    pygame.display.flip()
-    return game_loop(screen, buttons, inputboxes, game_state)
+    return inputs(screen, buttons, inputboxes, game_state)
 
 
 def play_level(screen, game_state):
@@ -108,7 +105,7 @@ def play_level(screen, game_state):
     buttons = RenderUpdates(return_btn, nextlevel_btn)
     inputboxes = []
 
-    return game_loop(screen, buttons, inputboxes, game_state)
+    return inputs(screen, buttons, inputboxes, game_state)
 
 
 def game_loop(screen, buttons, inputboxes, game_state):
@@ -118,34 +115,38 @@ def game_loop(screen, buttons, inputboxes, game_state):
 
 
 def inputs(screen, buttons, inputboxes, game_state):
-    screen.fill(BLUE)
-    mouse_up = False
-    event_list = pygame.event.get()
-    for event in event_list:
-        if event.type == pygame.QUIT:
-            return GameState.QUIT
-        if event.type == pygame.VIDEORESIZE:
-            pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            mouse_up = True
-        for button in buttons:
-            ui_action = button.update(pygame.mouse.get_pos(), mouse_up, event)
-            if ui_action is not None:
-                return ui_action
+    previous_state = game_state
+    while True:
+        screen.fill(BLUE)
+        mouse_up = False
+        event_list = pygame.event.get()
+        for event in event_list:
+            if event.type == pygame.QUIT:
+                return GameState.QUIT
+            if event.type == pygame.VIDEORESIZE:
+                pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                mouse_up = True
+            for button in buttons:
+                ui_action = button.update(pygame.mouse.get_pos(), mouse_up, event)
+                if ui_action is not None:
+                    return ui_action
+            for box in inputboxes:
+                box.handle_event(event)
+
         for box in inputboxes:
-            box.handle_event(event)
+            box.update()
 
-    for box in inputboxes:
-        box.update()
+        for box in inputboxes:
+            box.draw(screen)
 
-    for box in inputboxes:
-        box.draw(screen)
-
-    buttons.draw(screen)
-    pygame.display.flip()
-    pygame.display.update()
-    clock.tick(60)
-    return game_state
+        buttons.draw(screen)
+        pygame.display.update()
+        clock.tick(30)
+        if previous_state == game_state:
+            pass
+        else:
+            return game_state
 
 
 main()
