@@ -3,6 +3,12 @@ import time
 import pygame
 import pygame.freetype
 from pygame.sprite import Sprite
+BLUE = (26, 79, 101, 200)
+WHITE = (200, 200, 200)
+RED = (100, 0, 0)
+GREEN = (0, 100, 0)
+BLACK = (0, 0, 0)
+
 
 
 def create_surface_with_text(text, font_size, text_rgb, bg_rgb):
@@ -152,7 +158,7 @@ class InputBox:
         self.rect = pygame.Rect(x, y, w, h)
         self.color = "White"
         self.txt_color = "White"
-        self.bg_color = "Black"
+        self.bg_color = BLUE
         self.text = text
         self.font_size = 16
         self.numb_font = pygame.font.SysFont("helvetica", 14)
@@ -193,7 +199,7 @@ class InputBox:
 
     def draw(self, screen):
         # Blit the text.
-        pygame.draw.rect(screen, self.bg_color, self.rect, 100)
+        draw_rect_alpha(screen, self.bg_color, self.rect)
         screen.blit(self.txt_surface, (self.rect.x + 5, self.rect.y + 10))
 
         # Blit the rect.
@@ -212,7 +218,6 @@ class InputBox:
     def update(self):
         # Re-render the text.
         self.txt_surface = self.text_font.render(self.text, True, self.color)
-
 
     def text_return(self):
         return self.text
@@ -267,3 +272,9 @@ class InputBoxPass(InputBox):
 
     def text_return(self):
         return self.__actual_text
+
+
+def draw_rect_alpha(surface, color, rect):
+    shape_surf = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+    pygame.draw.rect(shape_surf, color, shape_surf.get_rect())
+    surface.blit(shape_surf, rect)

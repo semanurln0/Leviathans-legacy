@@ -2,6 +2,7 @@ import os
 import pygame
 import math
 
+
 # Helper function to calculate hexagon vertices
 def hexagon_points(center, size):
     points = []
@@ -12,6 +13,8 @@ def hexagon_points(center, size):
         y = center[1] + size * math.sin(angle_rad)
         points.append((x, y))
     return points
+
+
 class Popup:
     def __init__(self, screen, rect, bg_color=(200, 200, 200), text="Popup"):
         self.screen = screen
@@ -46,6 +49,7 @@ class Popup:
     def show(self):
         self.visible = True
 
+
 class Hexagon:
     def __init__(self, center, size, color=(100, 100, 100)):
         self.center = center
@@ -79,7 +83,7 @@ class Button:
         self.rect = rect
         self.color = color
         self.font = pygame.font.Font(None, 24)
-    
+
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
         label_surface = self.font.render(self.label, True, (255, 255, 255))
@@ -93,6 +97,7 @@ class Button:
                 return True
         return False
 
+
 class TopBar:
     def __init__(self, screen_width):
         self.buttons = []
@@ -101,7 +106,7 @@ class TopBar:
 
     def add_button(self, button):
         self.buttons.append(button)
-    
+
     def draw(self, screen):
         pygame.draw.rect(screen, (50, 50, 50), (0, 0, self.screen_width, self.height))
         for button in self.buttons:
@@ -114,12 +119,13 @@ class TopBar:
                     # Placeholder for future functionality
                     pass
 
+
 class OverviewUI:
     def __init__(self, screen, background_filename):
         pygame.init()
         self.screen = screen
         self.font = pygame.font.Font(None, 24)
-        
+
         # Load and scale the background image
         base_dir = os.path.dirname(os.path.abspath(__file__))
         self.background_path = os.path.join(base_dir, '..', 'sprites', background_filename)
@@ -138,7 +144,7 @@ class OverviewUI:
         button_height = 40
         button_margin = 20
         x_start = (self.screen.get_width() - (button_width + button_margin) * len(button_labels) + button_margin) // 2
-        
+
         # Initialize The Pop Ups 
         self.popup = Popup(screen, pygame.Rect(150, 100, 500, 300), text="Building Information")
 
@@ -156,7 +162,7 @@ class OverviewUI:
         # Calculate the total grid width and height
         hex_width = self.hex_size * 2
         hex_height = math.sqrt(3) * self.hex_size
-        grid_width = (hex_width * 3/4) * self.grid_columns + self.hex_size / 4
+        grid_width = (hex_width * 3 / 4) * self.grid_columns + self.hex_size / 4
         grid_height = hex_height * self.grid_rows
         start_x = (self.screen.get_width() - grid_width) / 2 + self.hex_size
         start_y = (self.screen.get_height() - grid_height) / 2 + hex_height / 2
@@ -164,7 +170,7 @@ class OverviewUI:
         # Initialize grid positions
         for row in range(self.grid_rows):
             for col in range(self.grid_columns):
-                center_x = start_x + col * (hex_width * 3/4)
+                center_x = start_x + col * (hex_width * 3 / 4)
                 center_y = start_y + row * hex_height
                 if col % 2 == 1:
                     center_y += hex_height / 2
@@ -180,7 +186,7 @@ class OverviewUI:
                 if hexagon.is_clicked(event):
                     print(f"Clicked on hexagon at {hexagon.center}")
                     self.popup.show()
-    
+
     def draw(self):
         # Draw background, top bar, hexagons
         self.screen.blit(self.background, (0, 0))
@@ -190,6 +196,7 @@ class OverviewUI:
         self.popup.draw()  # Draw the popup
         pygame.display.flip()
         pygame.display.flip()
+
 
 def test_overview_ui():
     screen = pygame.display.set_mode((800, 600))
@@ -208,7 +215,6 @@ def test_overview_ui():
 
     pygame.quit()
 
+
 # Uncomment to test
-test_overview_ui()
-
-
+#test_overview_ui()
