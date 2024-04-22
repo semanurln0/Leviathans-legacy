@@ -25,12 +25,12 @@ def handle_client(client_socket, addr):
 def run_server():
     server_ip = "127.0.0.1"  # server hostname or IP address
     port = 8000  # server port number
-    # create a socket object
     try:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # bind the socket to the host and port
         server.bind((server_ip, port))
         # listen for incoming connections
+        server.settimeout(5)
         server.listen()
         print(f"Listening on {server_ip}:{port}")
 

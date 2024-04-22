@@ -6,6 +6,7 @@ import OverviewUIHexagon
 import UIElements
 import socket
 import os
+import time
 
 pygame.init()
 # Colours
@@ -26,12 +27,30 @@ class GameState(Enum):
 clock = pygame.time.Clock()
 
 
-def main():
+def connect_to_server():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_ip = "127.0.0.1"
     server_port = 8000
+    Connected = True
+    tries = 0
+    while Connected:
+        try:
+            client.connect((server_ip, server_port))
+            print(f"Connected to {server_ip} using {server_port}")
+            Connected = False
+        except ConnectionRefusedError:
+            print("Connection failed")
+            tries += 1
+            if tries == 5:
+                pygame.quit()
+            pygame.time.wait(1000)
+    return client
+
+
+def main():
+    client = connect_to_server()
     # establish connection with server
-    client.connect((server_ip, server_port))
+
     game_state = GameState(0)
     pygame.init()
 
@@ -79,7 +98,7 @@ def title_screen(screen, game_state):
         text="Quit",
         action=game_state.QUIT,
     )
-    login_box = UIElements.InputBox((screen.get_width()/2) - 100, 350, 200, 36, "Enter your username")
+    login_box = UIElements.InputBox((screen.get_width() / 2) - 100, 350, 200, 36, "Enter your username")
     pass_box = UIElements.InputBoxPass((screen.get_width() / 2) - 100, 400, 200, 36, "Enter your password")
 
     buttons = RenderUpdates(title, start_btn, quit_btn)
