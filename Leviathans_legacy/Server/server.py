@@ -1,6 +1,7 @@
 import socket
 import threading
 import sqlite3
+import os
 
 
 def handle_client(client_socket, addr):
@@ -23,17 +24,29 @@ def handle_client(client_socket, addr):
 
 
 def run_server():
+    clients = []
     server_ip = "127.0.0.1"  # server hostname or IP address
     port = 8000  # server port number
+    # Database connection error handling
+    try:
+        connection = sqlite3.connect("Leviathan.db")
+        if os.path.isfile("Leviathan.db"):
+            connection.cursor()
+            print("Connected to database")
+        else:
+            raise ValueError('Failed to connect DB')
+    except ValueError as e:
+        print(f"Error with database connection: {e}")
+        print("Shutting down")
+        raise SystemExit
+    # Creation of server and connection
     try:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # bind the socket to the host and port
         server.bind((server_ip, port))
         # listen for incoming connections
-        server.settimeout(5)
-        server.listen()
         print(f"Listening on {server_ip}:{port}")
-
+        server.listen()
         while True:
             # accept a client connection
             client_socket, addr = server.accept()
@@ -41,6 +54,7 @@ def run_server():
             # start a new thread to handle the client
             thread = threading.Thread(target=handle_client, args=(client_socket, addr,))
             thread.start()
+
     except Exception as e:
         print(f"Error: {e}")
     finally:
