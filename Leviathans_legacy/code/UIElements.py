@@ -258,6 +258,7 @@ class InputBoxPass(InputBox):
                     self.active = False
                 elif event.key == pygame.K_BACKSPACE:
                     self.text = self.text[:-1]
+                    self.__actual_text = self.__actual_text[:-1]
                 else:
                     self.text += "*"
                     self.__actual_text += event.unicode

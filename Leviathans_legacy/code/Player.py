@@ -9,4 +9,3 @@ class Player:
         self.steel = 100
         self.soldiers = 0
 
-player1= Player()

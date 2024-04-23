@@ -6,7 +6,6 @@ import OverviewUIHexagon
 import UIElements
 import socket
 import os
-import time
 
 pygame.init()
 # Colours
@@ -24,7 +23,24 @@ class GameState(Enum):
     NEXT_LEVEL = 2
 
 
+class LoginInfo:
+    def __init__(self):
+        self.__username = None
+        self.__password = None
+
+    def set_login_info(self, username, password):
+        self.__username = username
+        self.__password = password
+
+    def get_login_user(self):
+        return self.__username
+
+    def get_login_pass(self):
+        return self.__password
+
+
 clock = pygame.time.Clock()
+login = LoginInfo()
 
 
 def connect_to_server():
@@ -50,7 +66,6 @@ def connect_to_server():
 def main():
     client = connect_to_server()
     # establish connection with server
-
     game_state = GameState(0)
     pygame.init()
 
@@ -60,13 +75,17 @@ def main():
     screen = pygame.display.set_mode((w, h))
 
     while True:
-        pygame.key.set_repeat(200, 25)
         if game_state == GameState.TITLE:
             game_state = title_screen(screen, game_state)
 
         if game_state == GameState.MAIN_SCREEN:
+            username = login.get_login_user()
+            password = login.get_login_pass()
+            print(username, password)
             OverviewUIHexagon.test_overview_ui()
-            game_state = play_level(screen, game_state)
+            client.close()
+            pygame.quit()
+            return
 
         if game_state == GameState.QUIT:
             client.close()
@@ -131,12 +150,6 @@ def play_level(screen, game_state):
     return inputs(screen, buttons, inputboxes, game_state)
 
 
-def game_loop(screen, buttons, inputboxes, game_state):
-    # Handles screen
-    while True:
-        return inputs(screen, buttons, inputboxes, game_state)
-
-
 def inputs(screen, buttons, inputboxes, game_state):
     previous_state = game_state
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -163,16 +176,16 @@ def inputs(screen, buttons, inputboxes, game_state):
 
         for box in inputboxes:
             box.update()
-
+            login.set_login_info(inputboxes[0].text_return(), inputboxes[1].text_return())
         for box in inputboxes:
             box.draw(screen)
-
         buttons.draw(screen)
         pygame.display.flip()
         clock.tick(30)
 
         if previous_state == game_state:
             pass
+
         else:
             return game_state
 
