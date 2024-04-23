@@ -3,7 +3,7 @@ import pygame
 from Player import player1  # This assumes you have a player class that includes a 'steel' attribute
 
 class Buildings:
-    def __init__(self):
+    def __init__(self, image_filename="SimpleBuilding.png"):
         self.build_cost = 10
         self.build_time = 10
         self.upgrade_possible = True
@@ -11,20 +11,18 @@ class Buildings:
         self.building_stage = 0
         self.increase_rate_of_price = 1
         self.increase_rate_of_build_time = 1.5
-        self.base_image_path = "sprites"  # Relative path to the sprites directory
-        self.image_paths = {0: "SimpleBuilding.png"}  # Default image filename
-        self.loaded_images = {}  # Cache loaded images to avoid reloading
-        self.load_images()
+        self.base_image_path = "sprites"
+        self.image_filename = image_filename
+        self.image = self.load_image()
 
-    def load_images(self):
-        """Load images from the specified paths."""
-        for stage, filename in self.image_paths.items():
-            full_path = os.path.join(os.path.dirname(__file__), '..', self.base_image_path, filename)
-            try:
-                self.loaded_images[stage] = pygame.image.load(full_path)
-            except pygame.error as e:
-                print(f"Unable to load image at {full_path}. Error: {e}")
-                raise SystemExit(e)
+    def load_image(self):
+        """Load an image based on the current stage."""
+        full_path = os.path.join(os.path.dirname(__file__), '..', self.base_image_path, self.image_filename)
+        try:
+            return pygame.image.load(full_path)
+        except pygame.error as e:
+            print(f"Unable to load image at {full_path}. Error: {e}")
+            raise SystemExit(e)
 
     def build(self):
         if player1.steel >= self.build_cost and self.upgrade_possible and self.buyable and self.building_stage == 0:
@@ -75,44 +73,43 @@ class Buildings:
 
 class Plantation(Buildings):
     def __init__(self):
-        super().__init__()
+        super().__init__("SimpleBuilding.png")
         self.build_cost = 20
         self.build_time = 30
-        self.production_rate = 5  # This may be used to calculate server-side logic
+        self.production_rate = 5
+
 class PowerPlant(Buildings):
     def __init__(self):
-        super().__init__()
+        super().__init__("SimpleBuilding.png")
         self.build_cost = 40
         self.build_time = 45
-        self.energy_output = 10  # This may be used to calculate server-side logic
+        self.energy_output = 100
+
 class Cabins(Buildings):
     def __init__(self):
-        super().__init__()
-        self.build_cost = 40
-        self.build_time = 45
-        self.energy_output = 10  # This may be used to calculate server-side logic
+        super().__init__("SimpleBuilding.png")
+        self.build_cost = 30
+        self.build_time = 20
+
 class Barracks(Buildings):
     def __init__(self):
-        super().__init__()
-        self.build_cost = 40
-        self.build_time = 45
-        self.energy_output = 10  # This may be used to calculate server-side logic
+        super().__init__("SimpleBuilding.png")
+        self.build_cost = 50
+        self.build_time = 60
+
 class AbyssalOreRefinery(Buildings):
     def __init__(self):
-        super().__init__()
-        self.build_cost = 40
-        self.build_time = 45
-        self.energy_output = 10  # This may be used to calculate server-side logic
+        super().__init__("SimpleBuilding.png")
+        self.build_cost = 70
+        self.build_time = 80
+        self.ore_processing_rate = 15
+
 class DefensiveDome(Buildings):
     def __init__(self):
-        super().__init__()
-        self.build_cost = 40
-        self.build_time = 45
-        self.energy_output = 10  # This may be used to calculate server-side logic
-
-#pygame.display.set_caption("Building Images")
-#building_image = pygame.image.load(building1.GetImage()).convert_alpha()
-#screen.blit(building_image, (100, 100))  # Display the building image
+        super().__init__("SimpleBuilding.png")
+        self.build_cost = 100
+        self.build_time = 90
+        self.defense_capability = 200
 
 
 
