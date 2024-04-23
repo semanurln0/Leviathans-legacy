@@ -81,8 +81,13 @@ def main():
         if game_state == GameState.MAIN_SCREEN:
             username = login.get_login_user()
             password = login.get_login_pass()
-            print(username, password)
-            OverviewUIHexagon.test_overview_ui()
+            request = "login" + " " + username + " " + password
+            client.send(request.encode("utf-8")[:1024])
+            received = client.recv(1024).decode("utf-8")
+            if received.lower() == "accepted":
+                OverviewUIHexagon.test_overview_ui()
+            elif received.lower() == "rejected":
+                pass
             client.close()
             pygame.quit()
             return
