@@ -160,14 +160,14 @@ class Popup:
                         self.selected_hexagon.building = None
                     self.visible = False
                     return True
-            if self.content.startswith("Choose a building:"):
-                index = (event.pos[1] - (self.rect.y + 40)) // 30
-                if 0 <= index < len(self.options):
-                    building_type = self.options[index]['name'].replace(' ', '_').lower()
-                    building = self.factory.create_building(building_type)
-                    self.selected_hexagon.building = building
-                    self.update_content(building)
-                    return True
+                if self.content.startswith("Choose a building:"):
+                    index = (event.pos[1] - (self.rect.y + 40)) // 30
+                    if 0 <= index < len(self.options):
+                        building_type = self.options[index]['name'].replace(' ', '_').lower()
+                        building = self.factory.create_building(building_type)
+                        self.selected_hexagon.building = building
+                        self.update_content(building)
+                        return True
         return False
 
     def set_building_options(self, options):
@@ -201,7 +201,7 @@ class OverviewUI:
         except pygame.error as e:
             print(f"Unable to load image at {self.background_path}. Error: {e}")
             raise SystemExit(e)
-        self.popup = Popup(screen, pygame.Rect(150, 100, 500, 200))
+        self.popup = Popup(screen, pygame.Rect(150, 100, 500, 400))
         self.hexagons = self.initialize_hexagons(screen.get_width(), screen.get_height())
 
     def initialize_buttons(self):
