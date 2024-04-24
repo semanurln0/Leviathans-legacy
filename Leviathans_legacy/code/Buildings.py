@@ -8,7 +8,7 @@ class Buildings:
         self.build_time = 10
         self.upgrade_possible = True
         self.buyable = True
-        self.building_stage = 0
+        self.building_stage = 0 
         self.increase_rate_of_price = 1
         self.increase_rate_of_build_time = 1.5
         self.base_image_path = "sprites"
@@ -29,7 +29,7 @@ class Buildings:
             player1.steel -= self.build_cost
             self.building_stage = 1
             self.increase_of_price()
-            pygame.time.set_timer(pygame.USEREVENT, self.build_time * 1000)
+            #pygame.time.set_timer(pygame.USEREVENT, self.build_time * 1000)
             self.increase_build_timer()
             self.buyable = False
 
@@ -38,7 +38,7 @@ class Buildings:
             player1.steel -= self.build_cost
             self.building_stage += 1
             self.increase_of_price()
-            pygame.time.set_timer(pygame.USEREVENT, self.build_time * 1000)
+            #pygame.time.set_timer(pygame.USEREVENT, self.build_time * 1000)
             self.increase_build_timer()
 
     def demolish(self):
@@ -110,6 +110,27 @@ class DefensiveDome(Buildings):
         self.build_cost = 100
         self.build_time = 90
         self.defense_capability = 200
+
+class BuildingFactory:
+    def create_building(self, building_type):
+        """Factory method to create buildings based on the type."""
+        if building_type == 'plantation':
+            return Plantation()
+        elif building_type == 'power_plant':
+            return PowerPlant()
+        elif building_type == 'cabins':
+            return Cabins()
+        elif building_type == 'barracks':
+            return Barracks()
+        elif building_type == 'abyssal_ore_refinery':
+            return AbyssalOreRefinery()
+        elif building_type == 'defensive_dome':
+            return DefensiveDome()
+        else:
+            raise ValueError(f"Unknown building type {building_type}")
+
+
+
 
 
 
