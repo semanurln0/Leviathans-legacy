@@ -86,6 +86,10 @@ def main():
             client.send(request.encode("utf-8")[:1024])
             received = client.recv(1024).decode("utf-8")
             if received.lower() == "accepted":
+                request = "info"
+                client.send(request.encode("utf-8")[:1024])
+                received = client.recv(1024).decode("utf-8")
+                print(received)
                 OverviewUIHexagon.test_overview_ui()
             elif received.lower() == "rejected":
                 pass

@@ -19,7 +19,7 @@ def connect_db():
 
 
 def handle_client(client_socket, addr):
-    player =  ""
+    username = ""
     try:
         while True:
             # receive and print client messages
@@ -44,13 +44,14 @@ def handle_client(client_socket, addr):
                     username = data[1]
                     client_socket.send(response.encode("utf-8")[:1024])
             elif break_up[0] == "info":
-                querier.execute("SELECT * FROM Players WHERE PName = username")
+                querier.execute("SELECT * FROM Players WHERE PName = ?", (username,))
                 data = querier.fetchone()
-                response =  ""
-                for info in range(2, data.len()):
+                response = ""
+                for info in range(2, len(data) - 1):
                     response += str(data[info])
-                    if info != data.len():
+                    if info != len(data):
                         response += " "
+                print(response)
                 client_socket.send(response.encode("utf-8")[:1024])
             print(f"Received: {request}")
             # convert and send accept response to the client
