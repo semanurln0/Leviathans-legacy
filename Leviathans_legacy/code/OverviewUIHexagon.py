@@ -205,11 +205,17 @@ class OverviewUI:
         base_dir = os.path.dirname(os.path.abspath(__file__))
         sprites_dir = os.path.join(base_dir, '..', 'sprites')  # Directory for sprites
         hexagons = []
-        hex_size = 40
-        hex_width = 2 * hex_size
-        hex_height = math.sqrt(3) * hex_size
-        grid_width = 3 * hex_width
-        grid_height = 3 * hex_height
+        hex_size = 40  # The radius of a hexagon
+        spacing_factor = 1.4  # Increase this factor to increase spacing
+
+        # Calculate the full width and height of each hexagon including spacing
+        hex_width = 2 * hex_size * spacing_factor
+        hex_height = math.sqrt(3) * hex_size * spacing_factor
+
+        # Calculate grid width and height based on hex dimensions
+        grid_width = 3 * hex_width * 0.75  # Adjusting horizontal spacing
+        grid_height = 3 * hex_height  # Adjusting vertical spacing
+
         start_x = (screen_width - grid_width) / 2
         start_y = (screen_height - grid_height) / 2
 
@@ -228,8 +234,8 @@ class OverviewUI:
                 x = start_x + col * hex_width * 0.75
                 y = start_y + row * hex_height
                 if col % 2 == 1:
-                    y += hex_height / 2
-                hexagon = Hexagon((x, y), hex_size)  # Start without a building
+                    y += hex_height / 2  # Offset for odd columns to align hexagons
+                hexagon = Hexagon((x, y), hex_size)
                 hexagons.append(hexagon)
         return hexagons
     def load_image(self, directory, filename):
