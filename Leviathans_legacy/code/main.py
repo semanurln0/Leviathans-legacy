@@ -92,10 +92,15 @@ def main():
                 print(received)
                 OverviewUIHexagon.test_overview_ui()
             elif received.lower() == "rejected":
-                pass
-            client.close()
-            pygame.quit()
-            return
+                box = UIElements.TextBox(
+                    center_position=(screen.get_width() / 2, 150),
+                    font_size=50,
+                    bg_rgb=None,
+                    text_rgb=RED,
+                    text="Leviathans legacy",)
+                box.draw(screen)
+                pygame.time.wait(2000)
+                game_state = title_screen(screen, game_state)
 
         if game_state == GameState.QUIT:
             client.close()

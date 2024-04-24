@@ -37,12 +37,15 @@ def handle_client(client_socket, addr):
                 if data[0] == 0:
                     print('There is no profile named %s' % break_up[1])
                     response = "rejected"
-                    client_socket.send(response.encode("utf-8")[:1024])
                 else:
                     print('Username %s found' % (break_up[1]))
-                    response = "accepted"
-                    username = data[1]
-                    client_socket.send(response.encode("utf-8")[:1024])
+                    if break_up[2] == data[2]:
+                        response = "accepted"
+                        username = data[1]
+                    else:
+                        response = "rejected"
+                client_socket.send(response.encode("utf-8")[:1024])
+
             elif break_up[0] == "info":
                 querier.execute("SELECT * FROM Players WHERE PName = ?", (username,))
                 data = querier.fetchone()
