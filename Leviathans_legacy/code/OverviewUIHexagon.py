@@ -2,16 +2,19 @@ import os
 import pygame
 import math
 from random import choice
-from Buildings import Plantation, PowerPlant, Cabins, Barracks, AbyssalOreRefinery, DefensiveDome  # Ensure these are defined
+from Buildings import Plantation, PowerPlant, Cabins, Barracks, AbyssalOreRefinery, \
+    DefensiveDome  # Ensure these are defined
 from Buildings import BuildingFactory
 from Player import player1
+
+
 class Button:
     def __init__(self, label, rect, color):
         self.label = label
         self.rect = rect
         self.color = color
         self.font = pygame.font.Font(None, 24)
-    
+
     def draw(self, screen):
         pygame.draw.rect(screen, self.color, self.rect)
         label_surface = self.font.render(self.label, True, (255, 255, 255))
@@ -24,6 +27,8 @@ class Button:
                 print(f"{self.label} button clicked")
                 return True
         return False
+
+
 class TopBar:
     def __init__(self, screen_width):
         self.buttons = []
@@ -49,13 +54,11 @@ class TopBar:
         button.rect.y = 10  # Adjust y-position of buttons if needed
         self.buttons.append(button)
 
-
     def handle_events(self, events):
         for event in events:
             for button in self.buttons:
                 if button.is_clicked(event):
                     pass
-                    
 
 
 def hexagon_points(center, size):
@@ -67,6 +70,7 @@ def hexagon_points(center, size):
         y = center[1] + size * math.sin(angle_rad)
         points.append((x, y))
     return points
+
 
 class Hexagon:
     def __init__(self, center, size, color=(100, 100, 100), building=None):
@@ -83,10 +87,12 @@ class Hexagon:
 
     def is_clicked(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if any(min(p[i] <= event.pos[i % 2] <= max(p[i] for p in self.points) for i in range(2)) for p in self.points):
+            if any(min(p[i] <= event.pos[i % 2] <= max(p[i] for p in self.points) for i in range(2)) for p in
+                   self.points):
                 self.clicked = not self.clicked
                 return True
         return False
+
 
 class Popup:
     def __init__(self, screen, rect, bg_color=(200, 200, 200)):
@@ -116,7 +122,8 @@ class Popup:
             self.screen.blit(text_surface, (self.rect.x + 10, self.rect.y + 100))
         if self.selected_hexagon and self.selected_hexagon.building:
             building = self.selected_hexagon.building
-            text_surface = self.font.render(f"{building.__class__.__name__} - Stage: {building.building_stage}", True, (0, 0, 0))
+            text_surface = self.font.render(f"{building.__class__.__name__} - Stage: {building.building_stage}", True,
+                                            (0, 0, 0))
             self.screen.blit(text_surface, (self.rect.x + 10, self.rect.y + y_offset))
             upgrade_text = "Upgrade" if building.upgrade_possible else "Max Level"
             upgrade_button = self.font.render(upgrade_text, True, (255, 255, 255))
@@ -147,7 +154,7 @@ class Popup:
                     self.selected_hexagon.building.upgrade()
                     return True
                 if self.demolish_button_rect.collidepoint(event.pos):
-                    if self.selected_hexagon.building.building_stage > 0 :
+                    if self.selected_hexagon.building.building_stage > 0:
                         self.selected_hexagon.building.demolish()
                     else:
                         self.selected_hexagon.building = None
@@ -166,12 +173,14 @@ class Popup:
     def set_building_options(self, options):
         # Update to pass the actual type name expected by the factory
         self.options = options
+
     def update_content(self, building=None):
         if building:
             self.content = f"{type(building).__name__}: Stage {building.building_stage}"
         else:
             self.content = "Choose a building:"
         self.visible = True
+
     def update(self):
         # Call this method in the game loop to continuously update the popup
         if self.visible and self.selected_hexagon and self.selected_hexagon.building:
@@ -194,12 +203,12 @@ class OverviewUI:
             raise SystemExit(e)
         self.popup = Popup(screen, pygame.Rect(150, 100, 500, 200))
         self.hexagons = self.initialize_hexagons(screen.get_width(), screen.get_height())
-        
+
     def initialize_buttons(self):
         labels = ['Account', 'World Map', 'Leaderboard', 'Settings', 'Help']
         for i, label in enumerate(labels):
             button = Button(label, pygame.Rect(10 + i * 110, 10, 100, 40), (0, 120, 150))
-            self.top_bar.add_button(button)    
+            self.top_bar.add_button(button)
 
     def initialize_hexagons(self, screen_width, screen_height):
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -224,8 +233,10 @@ class OverviewUI:
             {'name': 'Power Plant', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'), 'create': PowerPlant},
             {'name': 'Cabins', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'), 'create': Cabins},
             {'name': 'Barracks', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'), 'create': Barracks},
-            {'name': 'Abyssal Ore Refinery', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'), 'create': AbyssalOreRefinery},
-            {'name': 'Defensive Dome', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'), 'create': DefensiveDome}
+            {'name': 'Abyssal Ore Refinery', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'),
+             'create': AbyssalOreRefinery},
+            {'name': 'Defensive Dome', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'),
+             'create': DefensiveDome}
         ]
         self.popup.set_building_options(building_options)
 
@@ -238,6 +249,7 @@ class OverviewUI:
                 hexagon = Hexagon((x, y), hex_size)
                 hexagons.append(hexagon)
         return hexagons
+
     def load_image(self, directory, filename):
         path = os.path.join(directory, filename)
         try:
@@ -246,21 +258,22 @@ class OverviewUI:
         except pygame.error as e:
             print(f"Unable to load image at {path}. Error: {e}")
             raise SystemExit(e)
+
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
 
-        # Process events for the top bar first to handle any UI interactions
+            # Process events for the top bar first to handle any UI interactions
             self.top_bar.handle_events([event])  # Pass a list with the current event only
 
-        # Process events for the popup if it's visible
+            # Process events for the popup if it's visible
             if self.popup.visible:
                 if self.popup.handle_event(event):
                     continue  # Skip other interactions if popup was interacted with
 
-        # Process hexagon clicks only if the popup is not interacting
+            # Process hexagon clicks only if the popup is not interacting
             for hexagon in self.hexagons:
                 if hexagon.is_clicked(event):
                     self.popup.selected_hexagon = hexagon
@@ -271,13 +284,13 @@ class OverviewUI:
                         self.popup.update_content()
                     break
 
-
     def draw(self):
         self.screen.blit(self.background, (0, 0))
         self.top_bar.draw(self.screen)  # Ensure this is being called
         for hexagon in self.hexagons:
             hexagon.draw(self.screen)
         self.popup.draw()
+
 
 def test_overview_ui():
     screen = pygame.display.set_mode((800, 600))
@@ -296,5 +309,5 @@ def test_overview_ui():
 
     pygame.quit()
 
-test_overview_ui()
-
+# test_overview_ui()
+[]

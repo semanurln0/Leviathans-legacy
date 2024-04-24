@@ -68,7 +68,7 @@ def main():
     # establish connection with server
     game_state = GameState(0)
     pygame.init()
-
+    pygame.key.set_repeat(200)
     info = pygame.display.Info()
     w = 500
     h = 600
@@ -82,6 +82,7 @@ def main():
             username = login.get_login_user()
             password = login.get_login_pass()
             request = "login" + " " + username + " " + password
+            print(request)
             client.send(request.encode("utf-8")[:1024])
             received = client.recv(1024).decode("utf-8")
             if received.lower() == "accepted":

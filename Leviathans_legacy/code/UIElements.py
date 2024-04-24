@@ -3,12 +3,12 @@ import time
 import pygame
 import pygame.freetype
 from pygame.sprite import Sprite
+
 BLUE = (26, 79, 101, 200)
 WHITE = (200, 200, 200)
 RED = (100, 0, 0)
 GREEN = (0, 100, 0)
 BLACK = (0, 0, 0)
-
 
 
 def create_surface_with_text(text, font_size, text_rgb, bg_rgb):
@@ -180,10 +180,8 @@ class InputBox:
                 self.active = False
         if event.type == pygame.KEYDOWN:
             if self.active:
-                if event.key == pygame.K_RETURN:
-                    print(self.text)
-                    self.text = ''
-                    self.active = False
+                if event.key == pygame.K_RETURN | (event.key == pygame.K_RSHIFT) | (event.key == pygame.K_LSHIFT):
+                    pass
                 elif event.key == pygame.K_BACKSPACE:
                     self.text = self.text[:-1]
                 else:
@@ -252,10 +250,9 @@ class InputBoxPass(InputBox):
                 self.active = False
         if event.type == pygame.KEYDOWN:
             if self.active:
-                if event.key == pygame.K_RETURN:
-                    print(self.text)
-                    self.text = ''
-                    self.active = False
+                if (event.key == pygame.K_RETURN or (event.key == pygame.K_RSHIFT) or
+                        (event.key == pygame.K_LSHIFT) or (event.key == pygame.K_TAB)):
+                    pass
                 elif event.key == pygame.K_BACKSPACE:
                     self.text = self.text[:-1]
                     self.__actual_text = self.__actual_text[:-1]

@@ -19,24 +19,29 @@ def connect_db():
 
 
 def handle_client(client_socket, addr):
+    break_up = []
     try:
         while True:
             # receive and print client messages
             request = client_socket.recv(1024).decode("utf-8")
             connection = connect_db()
             querier = connection.cursor()
+            print(request)
             if request.lower() == "close":
                 break
-            break_up = request.split()
+            break_up = request.split(" ")
+            print(break_up)
             if break_up[0] == "login":
                 querier.execute("SELECT count(*) FROM Players WHERE PName = ?", (break_up[1],))
-                data = querier.fetchone()[0]
-                if data == 0:
+                data = querier.fetchone()
+                # password = querier.fetchone()[1]
+                if data[0] == 0:
                     print('There is no profile named %s' % break_up[1])
                     response = "rejected"
                     client_socket.send(response.encode("utf-8")[:1024])
                 else:
                     print('Username %s found in %s row(s)' % (break_up[1], data))
+                    # print(password)
                     response = "accepted"
                     client_socket.send(response.encode("utf-8")[:1024])
             print(f"Received: {request}")
