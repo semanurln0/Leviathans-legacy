@@ -19,7 +19,7 @@ def connect_db():
 
 
 def handle_client(client_socket, addr):
-    break_up = []
+    player =  ""
     try:
         while True:
             # receive and print client messages
@@ -32,18 +32,26 @@ def handle_client(client_socket, addr):
             break_up = request.split(" ")
             print(break_up)
             if break_up[0] == "login":
-                querier.execute("SELECT count(*) FROM Players WHERE PName = ?", (break_up[1],))
+                querier.execute("SELECT * FROM Players WHERE PName = ?", (break_up[1],))
                 data = querier.fetchone()
-                # password = querier.fetchone()[1]
                 if data[0] == 0:
                     print('There is no profile named %s' % break_up[1])
                     response = "rejected"
                     client_socket.send(response.encode("utf-8")[:1024])
                 else:
-                    print('Username %s found in %s row(s)' % (break_up[1], data))
-                    # print(password)
+                    print('Username %s found' % (break_up[1]))
                     response = "accepted"
+                    username = data[1]
                     client_socket.send(response.encode("utf-8")[:1024])
+            elif break_up[0] == "info":
+                querier.execute("SELECT * FROM Players WHERE PName = username")
+                data = querier.fetchone()
+                response =  ""
+                for info in range(2, data.len()):
+                    response += str(data[info])
+                    if info != data.len():
+                        response += " "
+                client_socket.send(response.encode("utf-8")[:1024])
             print(f"Received: {request}")
             # convert and send accept response to the client
             response = "accepted"
