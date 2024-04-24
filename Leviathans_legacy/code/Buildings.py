@@ -1,7 +1,8 @@
 import os
 import pygame
-from Player import player1  # This assumes you have a player class that includes a 'steel' attribute
+from Player import Player  # This assumes you have a player class that includes a 'steel' attribute
 import time
+
 
 class Buildings:
     def __init__(self, image_filename="SimpleBuilding.png"):
@@ -9,7 +10,7 @@ class Buildings:
         self.build_time = 1
         self.upgrade_possible = True
         self.buyable = True
-        self.building_stage = 0 
+        self.building_stage = 0
         self.increase_rate_of_price = 1
         self.increase_rate_of_build_time = 1.5
         self.base_image_path = "sprites"
@@ -26,12 +27,12 @@ class Buildings:
             print(f"Unable to load image at {full_path}. Error: {e}")
             raise SystemExit(e)
 
-    def build(self):
-        if player1.steel >= self.build_cost and self.upgrade_possible and self.buyable and self.building_stage == 0:
-            player1.steel -= self.build_cost
+    def build(self, mplayer):
+        if mplayer.steel >= self.build_cost and self.upgrade_possible and self.buyable and self.building_stage == 0:
+            mplayer.steel -= self.build_cost
             self.building_stage = 1
             self.increase_of_price()
-            #pygame.time.set_timer(pygame.USEREVENT, self.build_time * 1000)
+            # pygame.time.set_timer(pygame.USEREVENT, self.build_time * 1000)
             self.buyable = False
 
     def check_upgrade(self):
@@ -44,10 +45,10 @@ class Buildings:
             return max(0, int(self.upgrade_end_time - time.time()))
         return 0
 
-    def upgrade(self):
-        if self.upgrade_possible and player1.steel >= self.build_cost:
-            if self.upgrade_end_time == 0 or self.upgrade_end_time == None :
-                player1.steel -= self.build_cost
+    def upgrade(self, mplayer):
+        if self.upgrade_possible and mplayer.steel >= self.build_cost:
+            if self.upgrade_end_time == 0 or self.upgrade_end_time == None:
+                mplayer.steel -= self.build_cost
                 self.building_stage += 1
                 self.increase_of_price()
                 self.build_time *= self.increase_rate_of_build_time
@@ -57,10 +58,11 @@ class Buildings:
         if self.building_stage > 0:
             self.building_stage -= 1
 
-    def print_info(self):
-        print(f"Build Cost: {self.build_cost}, Player Steel: {player1.steel}")
+    def print_info(self, mplayer):
+        print(f"Build Cost: {self.build_cost}, Player Steel: {mplayer.steel}")
 
-    def set_attributes(self, build_cost, build_time, upgrade_possible, buyable, building_stage, increase_rate_of_build_time):
+    def set_attributes(self, build_cost, build_time, upgrade_possible, buyable, building_stage,
+                       increase_rate_of_build_time):
         self.build_cost = build_cost
         self.build_time = build_time
         self.upgrade_possible = upgrade_possible
@@ -71,7 +73,6 @@ class Buildings:
     def increase_of_price(self):
         self.build_cost += self.increase_rate_of_price
 
-
     def set_image(self, stage, image_filename):
         """Update image path for specific building stage and reload image."""
         self.image_paths[stage] = image_filename
@@ -81,12 +82,14 @@ class Buildings:
         """Get the current image based on the building's stage."""
         return self.loaded_images.get(self.building_stage, self.loaded_images[0])
 
+
 class Plantation(Buildings):
     def __init__(self):
         super().__init__("SimpleBuilding.png")
         self.build_cost = 20
         self.build_time = 30
         self.production_rate = 5
+
 
 class PowerPlant(Buildings):
     def __init__(self):
@@ -95,17 +98,20 @@ class PowerPlant(Buildings):
         self.build_time = 45
         self.energy_output = 100
 
+
 class Cabins(Buildings):
     def __init__(self):
         super().__init__("SimpleBuilding.png")
         self.build_cost = 30
         self.build_time = 20
 
+
 class Barracks(Buildings):
     def __init__(self):
         super().__init__("SimpleBuilding.png")
         self.build_cost = 50
         self.build_time = 60
+
 
 class AbyssalOreRefinery(Buildings):
     def __init__(self):
@@ -114,12 +120,14 @@ class AbyssalOreRefinery(Buildings):
         self.build_time = 80
         self.ore_processing_rate = 15
 
+
 class DefensiveDome(Buildings):
     def __init__(self):
         super().__init__("SimpleBuilding.png")
         self.build_cost = 100
         self.build_time = 90
         self.defense_capability = 200
+
 
 class BuildingFactory:
     def create_building(self, building_type):
@@ -138,19 +146,3 @@ class BuildingFactory:
             return DefensiveDome()
         else:
             raise ValueError(f"Unknown building type {building_type}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -5,7 +5,7 @@ from random import choice
 from Buildings import Plantation, PowerPlant, Cabins, Barracks, AbyssalOreRefinery, \
     DefensiveDome  # Ensure these are defined
 from Buildings import BuildingFactory
-from Player import player1
+from Player import Player
 
 
 class Button:
@@ -37,14 +37,14 @@ class TopBar:
         self.total_height = self.button_height + self.resource_height
         self.screen_width = screen_width
 
-    def draw(self, screen):
+    def draw(self, screen, mplayer):
         # Draw the background for the top bar
         pygame.draw.rect(screen, (50, 50, 50), (0, 0, self.screen_width, self.total_height))
         # Draw buttons
         for button in self.buttons:
             button.draw(screen)
         # Display resources below buttons
-        resource_text = f"Food: {player1.food}  Steel: {player1.steel}  Energy: {player1.energy}"
+        resource_text = f"Food: {mplayer.food}  Steel: {mplayer.steel}  Energy: {mplayer.energy}"
         font = pygame.font.Font(None, 24)
         text_surface = font.render(resource_text, True, (255, 255, 255))
         screen.blit(text_surface, (10, self.button_height + 25))  # Position the text just below the buttons
@@ -189,7 +189,7 @@ class Popup:
 
 
 class OverviewUI:
-    def __init__(self, screen, background_filename):
+    def __init__(self, screen, background_filename, mplayer):
         pygame.init()
         self.screen = screen
         self.top_bar = TopBar(screen.get_width())
@@ -284,26 +284,27 @@ class OverviewUI:
                         self.popup.update_content()
                     break
 
-    def draw(self):
+    def draw(self, mplayer):
         self.screen.blit(self.background, (0, 0))
-        self.top_bar.draw(self.screen)  # Ensure this is being called
+        self.top_bar.draw(self.screen, mplayer)  # Ensure this is being called
         for hexagon in self.hexagons:
             hexagon.draw(self.screen)
         self.popup.draw()
 
 
-def test_overview_ui():
+def overview_ui(mplayer):
     screen = pygame.display.set_mode((800, 600))
     pygame.display.set_caption("Game Overview UI")
-    ui = OverviewUI(screen, 'BackgroundPlaceHolder.png')
+    ui = OverviewUI(screen, 'BackgroundPlaceHolder.png', mplayer)
     clock = pygame.time.Clock()
-
     running = True
+    data = mplayer.get_player_info()
+    print(data)
     while running:
         events = pygame.event.get()
         ui.handle_events(events)
         ui.popup.update()
-        ui.draw()
+        ui.draw(mplayer)
         pygame.display.flip()
         clock.tick(30)
 

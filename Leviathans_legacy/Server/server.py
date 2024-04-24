@@ -21,16 +21,14 @@ def connect_db():
 def handle_client(client_socket, addr):
     username = ""
     try:
+        connection = connect_db()
+        querier = connection.cursor()
         while True:
             # receive and print client messages
             request = client_socket.recv(1024).decode("utf-8")
-            connection = connect_db()
-            querier = connection.cursor()
-            print(request)
             if request.lower() == "close":
                 break
             break_up = request.split(" ")
-            print(break_up)
             if break_up[0] == "login":
                 querier.execute("SELECT * FROM Players WHERE PName = ?", (break_up[1],))
                 data = querier.fetchone()
@@ -50,16 +48,13 @@ def handle_client(client_socket, addr):
                 querier.execute("SELECT * FROM Players WHERE PName = ?", (username,))
                 data = querier.fetchone()
                 response = ""
-                for info in range(2, len(data) - 1):
+                for info in range(3, len(data)):
                     response += str(data[info])
                     if info != len(data):
                         response += " "
                 print(response)
                 client_socket.send(response.encode("utf-8")[:1024])
-            print(f"Received: {request}")
             # convert and send accept response to the client
-            response = "accepted"
-            client_socket.send(response.encode("utf-8"))
     except Exception as e:
         print(f"Error when handling client: {e}")
     finally:

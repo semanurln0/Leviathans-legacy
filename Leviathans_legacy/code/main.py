@@ -2,9 +2,9 @@ import pygame
 import pygame.freetype
 from enum import Enum
 from pygame.sprite import RenderUpdates
+from Player import Player, connect_to_server, check_connection
 import OverviewUIHexagon
 import UIElements
-import socket
 import os
 
 pygame.init()
@@ -43,26 +43,6 @@ clock = pygame.time.Clock()
 login = LoginInfo()
 
 
-def connect_to_server():
-    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_ip = "127.0.0.1"
-    server_port = 8000
-    Connected = True
-    tries = 0
-    while Connected:
-        try:
-            client.connect((server_ip, server_port))
-            print(f"Connected to {server_ip} using {server_port}")
-            Connected = False
-        except ConnectionRefusedError:
-            print("Connection failed")
-            tries += 1
-            if tries == 5:
-                pygame.quit()
-            pygame.time.wait(1000)
-    return client
-
-
 def main():
     client = connect_to_server()
     # establish connection with server
@@ -86,11 +66,8 @@ def main():
             client.send(request.encode("utf-8")[:1024])
             received = client.recv(1024).decode("utf-8")
             if received.lower() == "accepted":
-                request = "info"
-                client.send(request.encode("utf-8")[:1024])
-                received = client.recv(1024).decode("utf-8")
-                print(received)
-                OverviewUIHexagon.test_overview_ui()
+                mplayer = Player(client, username, password)
+                OverviewUIHexagon.overview_ui(mplayer)
             elif received.lower() == "rejected":
                 box = UIElements.TextBox(
                     center_position=(screen.get_width() / 2, 150),
