@@ -1,11 +1,12 @@
 import os
 import pygame
 from Player import player1  # This assumes you have a player class that includes a 'steel' attribute
+import time
 
 class Buildings:
     def __init__(self, image_filename="SimpleBuilding.png"):
         self.build_cost = 10
-        self.build_time = 10
+        self.build_time = 1
         self.upgrade_possible = True
         self.buyable = True
         self.building_stage = 0 
@@ -14,6 +15,7 @@ class Buildings:
         self.base_image_path = "sprites"
         self.image_filename = image_filename
         self.image = self.load_image()
+        self.upgrade_end_time = None
 
     def load_image(self):
         """Load an image based on the current stage."""
@@ -30,16 +32,26 @@ class Buildings:
             self.building_stage = 1
             self.increase_of_price()
             #pygame.time.set_timer(pygame.USEREVENT, self.build_time * 1000)
-            self.increase_build_timer()
             self.buyable = False
 
+    def check_upgrade(self):
+        if self.upgrade_end_time and time.time() >= self.upgrade_end_time:
+            self.upgrade_end_time = None
+            print("Upgrade complete!")
+
+    def get_remaining_upgrade_time(self):
+        if self.upgrade_end_time:
+            return max(0, int(self.upgrade_end_time - time.time()))
+        return 0
+
     def upgrade(self):
-        if player1.steel >= self.build_cost and self.upgrade_possible and self.buyable and self.building_stage >= 0:
-            player1.steel -= self.build_cost
-            self.building_stage += 1
-            self.increase_of_price()
-            #pygame.time.set_timer(pygame.USEREVENT, self.build_time * 1000)
-            self.increase_build_timer()
+        if self.upgrade_possible and player1.steel >= self.build_cost:
+            if self.upgrade_end_time == 0 or self.upgrade_end_time == None :
+                player1.steel -= self.build_cost
+                self.building_stage += 1
+                self.increase_of_price()
+                self.build_time *= self.increase_rate_of_build_time
+                self.upgrade_end_time = time.time() + self.build_time
 
     def demolish(self):
         if self.building_stage > 0:
@@ -59,8 +71,6 @@ class Buildings:
     def increase_of_price(self):
         self.build_cost += self.increase_rate_of_price
 
-    def increase_build_timer(self):
-        self.build_time *= self.increase_rate_of_build_time
 
     def set_image(self, stage, image_filename):
         """Update image path for specific building stage and reload image."""

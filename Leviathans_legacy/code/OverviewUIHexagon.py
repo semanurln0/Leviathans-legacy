@@ -110,6 +110,12 @@ class Popup:
         y_offset = 40
         if self.selected_hexagon and self.selected_hexagon.building:
             building = self.selected_hexagon.building
+            remaining_time = building.get_remaining_upgrade_time()
+            time_text = f"Time left for upgrade: {remaining_time}s" if remaining_time > 0 else "Upgrade complete or available!"
+            text_surface = self.font.render(time_text, True, (0, 0, 0))
+            self.screen.blit(text_surface, (self.rect.x + 10, self.rect.y + 100))
+        if self.selected_hexagon and self.selected_hexagon.building:
+            building = self.selected_hexagon.building
             text_surface = self.font.render(f"{building.__class__.__name__} - Stage: {building.building_stage}", True, (0, 0, 0))
             self.screen.blit(text_surface, (self.rect.x + 10, self.rect.y + y_offset))
             upgrade_text = "Upgrade" if building.upgrade_possible else "Max Level"
@@ -141,7 +147,10 @@ class Popup:
                     self.selected_hexagon.building.upgrade()
                     return True
                 if self.demolish_button_rect.collidepoint(event.pos):
-                    self.selected_hexagon.building = None
+                    if self.selected_hexagon.building.building_stage > 0 :
+                        self.selected_hexagon.building.demolish()
+                    else:
+                        self.selected_hexagon.building = None
                     self.visible = False
                     return True
             if self.content.startswith("Choose a building:"):
@@ -163,6 +172,11 @@ class Popup:
         else:
             self.content = "Choose a building:"
         self.visible = True
+    def update(self):
+        # Call this method in the game loop to continuously update the popup
+        if self.visible and self.selected_hexagon and self.selected_hexagon.building:
+            self.selected_hexagon.building.check_upgrade()
+            self.draw()
 
 
 class OverviewUI:
@@ -263,13 +277,16 @@ def test_overview_ui():
     screen = pygame.display.set_mode((800, 600))
     pygame.display.set_caption("Game Overview UI")
     ui = OverviewUI(screen, 'BackgroundPlaceHolder.png')
+    clock = pygame.time.Clock()
 
     running = True
     while running:
         events = pygame.event.get()
         ui.handle_events(events)
+        ui.popup.update()
         ui.draw()
         pygame.display.flip()
+        clock.tick(30)
 
     pygame.quit()
 
