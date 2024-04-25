@@ -1,10 +1,12 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import pygame
-from main import main, title_screen, play_level, GameState, connect_to_server
+from main import main, title_screen, play_level, GameState
 from OverviewUIHexagon import Button, TopBar, OverviewUI, Hexagon, Popup
 from Buildings import BuildingFactory, Buildings, time
-
+from Server import server
+from Player import Player, connect_to_server
+from UIElements import create_surface_with_text, BLUE, WHITE, InputBox, InputBoxPass
 
 # start test for main.py
 class TestGameFunctions(unittest.TestCase):
@@ -230,6 +232,165 @@ class TestBuildings(unittest.TestCase):
         building.building_stage = 0  # Ensure stage cannot be negative
         building.demolish()
         self.assertEqual(building.building_stage, 0)  # Check building stage remains 0
+
+
+# start test for server.py
+class TestServerFunctions(unittest.TestCase):
+
+    @patch('socket.socket')
+    def test_handle_client_login_accepted(self, mock_socket):
+        # Mock client socket and address
+        client_socket = MagicMock(name='ClientSocket')
+        addr = ("127.0.0.1", 12345)
+        mock_socket.return_value.accept.return_value = (client_socket, addr)
+
+        # Mock database query result for login request
+        querier = MagicMock(name='Querier')
+        querier.fetchone.return_value = (1, "testuser", "testpass", "other_data")
+        connection = MagicMock(name='Connection')
+        connection.cursor.return_value = querier
+        server.connect_db = MagicMock(return_value=connection)
+
+        # Simulate login request from client
+        client_socket.recv.return_value = "login testuser testpass".encode("utf-8")
+        server.handle_client(client_socket, addr)
+
+        # Assert that the server responds with "accepted"
+        client_socket.send.assert_called_with("accepted".encode("utf-8"))
+
+    # Assuming the previous test case for login is already included here
+
+    @patch('socket.socket')
+    def test_handle_client_info(self, mock_socket):
+        # Mock client socket and address
+        client_socket = MagicMock(name='ClientSocket')
+        addr = ("127.0.0.1", 12345)
+        mock_socket.return_value.accept.return_value = (client_socket, addr)
+
+        # Mock database query result for "info" request
+        querier = MagicMock(name='Querier')
+        querier.fetchone.return_value = (1, "testuser", "other_data")
+        connection = MagicMock(name='Connection')
+        connection.cursor.return_value = querier
+        server.connect_db = MagicMock(return_value=connection)
+
+        # Simulate "info" request from client
+        client_socket.recv.return_value = "info".encode("utf-8")
+        server.handle_client(client_socket, addr)
+
+        # Assert that the server responds with player information
+        expected_response = "other_data"
+        client_socket.send.assert_called_with(expected_response.encode("utf-8"))
+
+    @patch('socket.socket')
+    def test_handle_client_info_buildings(self, mock_socket):
+        # Mock client socket and address
+        client_socket = MagicMock(name='ClientSocket')
+        addr = ("127.0.0.1", 12345)
+        mock_socket.return_value.accept.return_value = (client_socket, addr)
+
+        # Mock database query result for "info_buildings" request
+        querier = MagicMock(name='Querier')
+        querier.fetchall.return_value = [(1, "building1"), (2, "building2")]
+        connection = MagicMock(name='Connection')
+        connection.cursor.return_value = querier
+        server.connect_db = MagicMock(return_value=connection)
+
+        # Simulate "info_buildings" request from client
+        client_socket.recv.return_value = "info_buildings".encode("utf-8")
+        server.handle_client(client_socket, addr)
+
+        # Assert that the server responds with building information
+        expected_response = "[(1, 'building1')] [(2, 'building2')] "
+        client_socket.send.assert_called_with(expected_response.encode("utf-8"))
+
+# start test for Player.py
+class TestPlayer(unittest.TestCase):
+    def setUp(self):
+        self.player = Player()
+        self.client = MagicMock(name='ClientSocket')
+
+    @patch('Player.connect_to_server')
+    def test_get_player_info(self, mock_connect_to_server):
+        # Mock connect_to_server to return a mocked client
+        mock_connect_to_server.return_value = self.client
+
+        # Mock recv method of the client to return player info
+        self.client.recv.return_value = "10000 10000 0".encode("utf-8")
+
+        # Call get_player_info method
+        info = self.player.get_player_info()
+
+        # Assert that the client sent the "info" request
+        self.client.send.assert_called_with("info".encode("utf-8")[:1024])
+
+        # Assert that the player info is correctly received and processed
+        self.assertEqual(info, ["10000", "10000", "0"])
+
+    @patch('Player.connect_to_server')
+    def test_get_buildings(self, mock_connect_to_server):
+        # Mock connect_to_server to return a mocked client
+        mock_connect_to_server.return_value = self.client
+
+        # Mock recv method of the client to return building info
+        self.client.recv.return_value = "building1 building2".encode("utf-8")
+
+        # Call get_buildings method
+        self.player.get_buildings()
+
+        # Assert that the client sent the "info_buildings" request
+        self.client.send.assert_called_with("info_buildings".encode("utf-8")[:1024])
+
+# start test for UIElements.py
+class TestInputBox(unittest.TestCase):
+    def setUp(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((800, 600))
+        self.input_box = InputBox(100, 100, 200, 50)
+
+    def test_handle_event(self):
+        event = MagicMock()
+        event.type = pygame.MOUSEBUTTONDOWN
+        event.pos = (110, 110)
+        self.input_box.handle_event(event)
+        self.assertTrue(self.input_box.active)
+
+    def test_update(self):
+        self.input_box.text = "Test Text"
+        self.input_box.update()
+        self.assertEqual(self.input_box.txt_surface.get_text(), "Test Text")
+
+    def test_text_return(self):
+        self.input_box.text = "Test Text"
+        self.assertEqual(self.input_box.text_return(), "Test Text")
+
+    def tearDown(self):
+        pygame.quit()
+
+class TestInputBoxPass(unittest.TestCase):
+    def setUp(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((800, 600))
+        self.input_box_pass = InputBoxPass(100, 100, 200, 50)
+
+    def test_handle_event(self):
+        event = MagicMock()
+        event.type = pygame.MOUSEBUTTONDOWN
+        event.pos = (110, 110)
+        self.input_box_pass.handle_event(event)
+        self.assertTrue(self.input_box_pass.active)
+
+    def test_update(self):
+        self.input_box_pass.text = "Test Text"
+        self.input_box_pass.update()
+        self.assertEqual(self.input_box_pass.txt_surface.get_text(), "Test Text")
+
+    def test_text_return(self):
+        self.input_box_pass.text = "Test Text"
+        self.assertEqual(self.input_box_pass.text_return(), "Test Text")
+
+    def tearDown(self):
+        pygame.quit()
 
 
 if __name__ == '__main__':
