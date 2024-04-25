@@ -20,6 +20,7 @@ def connect_db():
 
 def handle_client(client_socket, addr):
     username = ""
+    PID = 0
     try:
         connection = connect_db()
         querier = connection.cursor()
@@ -40,6 +41,7 @@ def handle_client(client_socket, addr):
                     if break_up[2] == data[2]:
                         response = "accepted"
                         username = data[1]
+                        PID = data[0]
                     else:
                         response = "rejected"
                 client_socket.send(response.encode("utf-8")[:1024])
@@ -54,7 +56,14 @@ def handle_client(client_socket, addr):
                         response += " "
                 print(response)
                 client_socket.send(response.encode("utf-8")[:1024])
-            # convert and send accept response to the client
+            elif break_up[0] == "info_buildings":
+                querier.execute("SELECT * FROM Buildings WHERE PlayerID = ?", (PID,))
+                data = querier.fetchall()
+                response = ""
+                for row in data:
+                    response += str(row) + " "
+                print(response)
+                client_socket.send(response.encode("utf-8")[:1024])
     except Exception as e:
         print(f"Error when handling client: {e}")
     finally:

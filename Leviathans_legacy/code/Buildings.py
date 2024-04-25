@@ -1,6 +1,6 @@
 import os
 import pygame
-from Player import Player  # This assumes you have a player class that includes a 'steel' attribute
+from Player import mplayer  # This assumes you have a player class that includes a 'steel' attribute
 import time
 
 
@@ -27,7 +27,7 @@ class Buildings:
             print(f"Unable to load image at {full_path}. Error: {e}")
             raise SystemExit(e)
 
-    def build(self, mplayer):
+    def build(self):
         if mplayer.steel >= self.build_cost and self.upgrade_possible and self.buyable and self.building_stage == 0:
             mplayer.steel -= self.build_cost
             self.building_stage = 1
@@ -45,7 +45,7 @@ class Buildings:
             return max(0, int(self.upgrade_end_time - time.time()))
         return 0
 
-    def upgrade(self, mplayer):
+    def upgrade(self):
         if self.upgrade_possible and mplayer.steel >= self.build_cost:
             if self.upgrade_end_time == 0 or self.upgrade_end_time == None:
                 mplayer.steel -= self.build_cost
@@ -58,7 +58,7 @@ class Buildings:
         if self.building_stage > 0:
             self.building_stage -= 1
 
-    def print_info(self, mplayer):
+    def print_info(self):
         print(f"Build Cost: {self.build_cost}, Player Steel: {mplayer.steel}")
 
     def set_attributes(self, build_cost, build_time, upgrade_possible, buyable, building_stage,

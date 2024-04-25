@@ -5,7 +5,7 @@ from random import choice
 from Buildings import Plantation, PowerPlant, Cabins, Barracks, AbyssalOreRefinery, \
     DefensiveDome  # Ensure these are defined
 from Buildings import BuildingFactory
-from Player import Player
+from Player import Player, mplayer
 
 
 class Button:
@@ -310,4 +310,5 @@ def overview_ui(mplayer):
 
     pygame.quit()
 
-# test_overview_ui()
+
+# overview_ui(mplayer)

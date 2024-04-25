@@ -5,7 +5,7 @@ import socket
 
 class Player:
     # Our player info
-    def __init__(self, client, username, password):
+    def __init__(self, client=None, username=None, password=None):
         self.food = 10000
         self.steel = 10000
         self.energy = 0
@@ -21,7 +21,6 @@ class Player:
             received = self.client.recv(1024).decode("utf-8")
             print(received)
             p_stats = received.split(" ")
-            return p_stats
         except Exception as e:
             self.client = connect_to_server()
             username = self.__username
@@ -33,7 +32,17 @@ class Player:
             received = self.client.recv(1024).decode("utf-8")
             print(received)
             p_stats = received.split(" ")
+        finally:
+            self.food = p_stats[0]
+            self.steel = p_stats[1]
+            self.energy = p_stats[2]
             return p_stats
+
+    def get_buildings(self):
+        request = "info_buildings"
+        self.client.send(request.encode("utf-8")[:1024])
+        received = self.client.recv(1024).decode("utf-8")
+        print(received)
 
     def show_food(self):
         return self.get_player_info()[0]
@@ -45,6 +54,14 @@ class Player:
     def show_energy(self):
         pass
         return self.get_player_info()[2]
+
+    def set_parameters(self, client, username, password):
+        self.client = client
+        self.__username = username
+        self.__password = password
+
+
+mplayer = Player()
 
 
 def connect_to_server():

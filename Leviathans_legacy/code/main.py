@@ -2,7 +2,7 @@ import pygame
 import pygame.freetype
 from enum import Enum
 from pygame.sprite import RenderUpdates
-from Player import Player, connect_to_server, check_connection
+from Player import mplayer, connect_to_server, check_connection
 import OverviewUIHexagon
 import UIElements
 import os
@@ -66,7 +66,8 @@ def main():
             client.send(request.encode("utf-8")[:1024])
             received = client.recv(1024).decode("utf-8")
             if received.lower() == "accepted":
-                mplayer = Player(client, username, password)
+                mplayer.set_parameters(client, username, password)
+                mplayer.get_buildings()
                 OverviewUIHexagon.overview_ui(mplayer)
             elif received.lower() == "rejected":
                 box = UIElements.TextBox(
