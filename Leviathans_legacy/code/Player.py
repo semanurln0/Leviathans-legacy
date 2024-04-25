@@ -33,9 +33,9 @@ class Player:
             print(received)
             p_stats = received.split(" ")
         finally:
-            self.food = p_stats[0]
-            self.steel = p_stats[1]
-            self.energy = p_stats[2]
+            self.food = int(p_stats[0])
+            self.steel = int(p_stats[1])
+            self.energy = int(p_stats[2])
             return p_stats
 
     def get_buildings(self):
