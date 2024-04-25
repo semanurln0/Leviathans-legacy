@@ -1,5 +1,4 @@
 pygame
-pygame.freetype
 unittest
 unittest.mock
 socket
