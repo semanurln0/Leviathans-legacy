@@ -25,6 +25,12 @@ class Button:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.rect.collidepoint(event.pos):
                 print(f"{self.label} button clicked")
+                if self.label=="Exit":
+                    mplayer.client.close()
+                    print('closing')
+                    pygame.quit
+                    running=False
+                    
                 return True
         return False
 
@@ -59,6 +65,7 @@ class TopBar:
             for button in self.buttons:
                 if button.is_clicked(event):
                     pass
+
 
 
 def hexagon_points(center, size):
@@ -205,7 +212,7 @@ class OverviewUI:
         self.hexagons = self.initialize_hexagons(screen.get_width(), screen.get_height())
 
     def initialize_buttons(self):
-        labels = ['Account', 'World Map', 'Leaderboard', 'Settings', 'Help']
+        labels = ['Account', 'World Map', 'Leaderboard', 'Settings', 'Help','Exit']
         for i, label in enumerate(labels):
             button = Button(label, pygame.Rect(10 + i * 110, 10, 100, 40), (0, 120, 150))
             self.top_bar.add_button(button)
