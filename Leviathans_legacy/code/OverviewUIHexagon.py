@@ -26,8 +26,8 @@ class Button:
             if self.rect.collidepoint(event.pos):
                 print(f"{self.label} button clicked")
                 if self.label=="Exit":
-                    mplayer.client.close()
                     print('closing')
+                    mplayer.client.close()
                     pygame.quit
                     running=False
                     
@@ -167,14 +167,14 @@ class Popup:
                         self.selected_hexagon.building = None
                     self.visible = False
                     return True
-                if self.content.startswith("Choose a building:"):
-                    index = (event.pos[1] - (self.rect.y + 40)) // 30
-                    if 0 <= index < len(self.options):
-                        building_type = self.options[index]['name'].replace(' ', '_').lower()
-                        building = self.factory.create_building(building_type)
-                        self.selected_hexagon.building = building
-                        self.update_content(building)
-                        return True
+            if self.content.startswith("Choose a building:"):
+                index = (event.pos[1] - (self.rect.y + 40)) // 30
+                if 0 <= index < len(self.options):
+                    building_type = self.options[index]['name'].replace(' ', '_').lower()
+                    building = self.factory.create_building(building_type)
+                    self.selected_hexagon.building = building
+                    self.update_content(building)
+                    return True
         return False
 
     def set_building_options(self, options):
