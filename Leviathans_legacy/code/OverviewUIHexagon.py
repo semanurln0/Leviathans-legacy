@@ -29,6 +29,7 @@ class Button:
                     print('closing')
                     mplayer.client.close()
                     pygame.quit
+                    quit()
                     running=False
                     
                 return True

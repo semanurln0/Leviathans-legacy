@@ -82,8 +82,10 @@ def main():
 
         if game_state == GameState.QUIT:
             client.close()
+            print('closing from login screen')
             pygame.quit()
-            return
+            quit()
+            
 
 
 def title_screen(screen, game_state):
