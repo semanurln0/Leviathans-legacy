@@ -1,7 +1,1 @@
 pygame
-unittest
-unittest.mock
-socket
-os
-math
-time
