@@ -1,0 +1,8 @@
+pygame
+pygame.freetype
+unittest
+unittest.mock
+socket
+os
+math
+time

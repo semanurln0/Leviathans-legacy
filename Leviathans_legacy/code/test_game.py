@@ -1,11 +1,12 @@
-import io
 import unittest
 from unittest.mock import patch, MagicMock
 import pygame
 from main import main, title_screen, play_level, GameState, connect_to_server
 from OverviewUIHexagon import Button, TopBar, OverviewUI, Hexagon, Popup
-from Buildings import BuildingFactory
+from Buildings import BuildingFactory, Buildings, time
 
+
+# start test for main.py
 class TestGameFunctions(unittest.TestCase):
 
     @patch('socket.socket.connect')
@@ -16,9 +17,8 @@ class TestGameFunctions(unittest.TestCase):
         client = connect_to_server()
         self.assertIsInstance(client, MagicMock)
 
-    @patch('sys.stdout', new_callable=io.StringIO)
     @patch('pygame.init')
-    def test_title_screen(self, mock_pygame_init, mock_stdout):
+    def test_title_screen(self, mock_pygame_init):
         # Test if title screen returns GameState.MAIN_SCREEN when login button is clicked
         mock_pygame_init.return_value = None
         screen = MagicMock(name='Screen')
@@ -33,17 +33,16 @@ class TestGameFunctions(unittest.TestCase):
         game_state = GameState.TITLE
         self.assertEqual(play_level(screen, game_state), GameState.TITLE)
 
-    @patch('sys.stdout', new_callable=io.StringIO)
-    @patch('builtins.input', side_effect=['testuser', 'testpass'])
     @patch('builtins.print')
     @patch('builtins.quit')
     @patch('pygame.init')
-    def test_main(self, mock_pygame_init, mock_quit, mock_print, mock_input, mock_stdout):
+    def test_main(self, mock_pygame_init, mock_quit, mock_print):
         # Test if main function returns expected output
         mock_pygame_init.return_value = None
         main()
         mock_print.assert_called_with('login testuser testpass')
         mock_quit.assert_called()
+
 
 class TestButton(unittest.TestCase):
 
@@ -73,6 +72,7 @@ class TestButton(unittest.TestCase):
         self.font.render.assert_called_once_with("Test", True, (255, 255, 255))
         self.screen.blit.assert_called_once()
 
+
 class TestTopBar(unittest.TestCase):
 
     def setUp(self):
@@ -94,6 +94,7 @@ class TestTopBar(unittest.TestCase):
         self.top_bar.handle_events([event])
         button.is_clicked.assert_called_once_with(event)
 
+
 class TestOverviewUI(unittest.TestCase):
 
     def setUp(self):
@@ -109,6 +110,8 @@ class TestOverviewUI(unittest.TestCase):
         self.assertTrue(mock_handle_game_events.called)
         self.assertEqual(self.ui.popup.visible, True)
 
+
+# start test for OverviewUIHexagon.py
 class TestHexagon(unittest.TestCase):
 
     def setUp(self):
@@ -133,6 +136,7 @@ class TestHexagon(unittest.TestCase):
         event.type = pygame.MOUSEBUTTONDOWN
         event.pos = (200, 200)
         self.assertFalse(self.hexagon.is_clicked(event))
+
 
 class TestPopup(unittest.TestCase):
 
@@ -172,6 +176,61 @@ class TestPopup(unittest.TestCase):
         self.popup.selected_hexagon = Hexagon((0, 0), 50)
         self.popup.selected_hexagon.building = MagicMock(name='Building')
         self.assertTrue(self.popup.handle_event(event))
+
+
+# start test for Buildings.py
+class TestBuildingFactory(unittest.TestCase):
+    def test_create_building(self):
+        factory = BuildingFactory()
+        building_types = ['plantation', 'power_plant', 'cabins', 'barracks', 'abyssal_ore_refinery', 'defensive_dome']
+        for building_type in building_types:
+            building = factory.create_building(building_type)
+            self.assertIsInstance(building, Buildings)
+
+    def test_create_unknown_building(self):
+        factory = BuildingFactory()
+        with self.assertRaises(ValueError):
+            factory.create_building('unknown_building')
+
+
+class TestBuildings(unittest.TestCase):
+    @patch('time.time')
+    def test_upgrade(self, mock_time):
+        building = Buildings()
+        # Ensure upgrade_possible and enough steel for upgrade
+        building.upgrade_possible = True
+        building.build_cost = 10
+        building.building_stage = 1
+        building.steel = 20
+        building.upgrade_end_time = None
+
+        building.upgrade()
+        self.assertEqual(building.steel, 10)  # Check steel deducted
+        self.assertEqual(building.building_stage, 2)  # Check building stage increased
+
+        # Ensure upgrade not possible when already upgrading
+        building.upgrade_end_time = time.time() + 10
+        building.upgrade()
+        self.assertEqual(building.steel, 10)  # Check steel not further deducted
+        self.assertEqual(building.building_stage, 2)  # Check building stage not increased
+
+        # Ensure upgrade not possible when not enough steel
+        building.steel = 5
+        building.upgrade_end_time = None
+        building.upgrade()
+        self.assertEqual(building.steel, 5)  # Check steel not deducted
+        self.assertEqual(building.building_stage, 2)  # Check building stage not increased
+
+    def test_demolish(self):
+        building = Buildings()
+        building.building_stage = 2
+        building.demolish()
+        self.assertEqual(building.building_stage, 1)  # Check building stage decreased
+
+        building.building_stage = 0  # Ensure stage cannot be negative
+        building.demolish()
+        self.assertEqual(building.building_stage, 0)  # Check building stage remains 0
+
 
 if __name__ == '__main__':
     unittest.main()
