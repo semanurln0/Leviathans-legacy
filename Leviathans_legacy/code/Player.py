@@ -15,27 +15,33 @@ class Player:
         self.__password = password
 
     def get_player_info(self):
+        p_stats = []
         try:
             request = "info"
             self.client.send(request.encode("utf-8")[:1024])
             received = self.client.recv(1024).decode("utf-8")
             print(received)
             p_stats = received.split(" ")
+            self.food = int(p_stats[0])
+            self.steel = int(p_stats[1])
+            self.energy = int(p_stats[2])
         except Exception as e:
+            print(e)
             self.client = connect_to_server()
             username = self.__username
             password = self.__password
             request = "login" + " " + username + " " + password
             self.client.send(request.encode("utf-8")[:1024])
+            response = self.client.recv(1024).decode("utf-8")
             request = "info"
             self.client.send(request.encode("utf-8")[:1024])
             received = self.client.recv(1024).decode("utf-8")
             print(received)
             p_stats = received.split(" ")
-        finally:
             self.food = int(p_stats[0])
             self.steel = int(p_stats[1])
             self.energy = int(p_stats[2])
+        finally:
             return p_stats
 
     def get_buildings(self):
@@ -59,6 +65,10 @@ class Player:
         self.client = client
         self.__username = username
         self.__password = password
+
+    def commit_building(self, hexagon_no, building_id, building_level):
+        request = "add_building" + " " + str(hexagon_no) + " " + str(building_id) + " " + str(building_level)
+        self.client.send(request.encode("utf-8")[:1024])
 
 
 mplayer = Player()

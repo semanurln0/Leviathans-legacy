@@ -20,7 +20,7 @@ def connect_db():
 
 def handle_client(client_socket, addr):
     username = ""
-    PID = 0
+    pid = 0
     try:
         connection = connect_db()
         querier = connection.cursor()
@@ -37,15 +37,14 @@ def handle_client(client_socket, addr):
                     print('There is no profile named %s' % break_up[1])
                     response = "rejected"
                 else:
-                    print('Username %s found' % (break_up[1]))
+                    print('Username %s found, pass is %s, given is %s' % (break_up[1], data[2], break_up[2]))
                     if break_up[2] == data[2]:
                         response = "accepted"
                         username = data[1]
-                        PID = data[0]
+                        pid = data[0]
                     else:
                         response = "rejected"
                 client_socket.send(response.encode("utf-8")[:1024])
-
             elif break_up[0] == "info":
                 querier.execute("SELECT * FROM Players WHERE PName = ?", (username,))
                 data = querier.fetchone()
@@ -57,13 +56,19 @@ def handle_client(client_socket, addr):
                 print(response)
                 client_socket.send(response.encode("utf-8")[:1024])
             elif break_up[0] == "info_buildings":
-                querier.execute("SELECT * FROM Buildings WHERE PlayerID = ?", (PID,))
+                querier.execute("SELECT * FROM Buildings WHERE PlayerID = ?", (pid,))
                 data = querier.fetchall()
                 response = ""
                 for row in data:
                     response += str(row) + " "
                 print(response)
                 client_socket.send(response.encode("utf-8")[:1024])
+            elif break_up[0] == "add_building":
+                try:
+                    querier.execute("INSERT INTO Buildings(PlayerID, BuildingNo, BuildingID, BuildingLevel) VALUES(?,?,?,?)", (pid, int(break_up[1]), int(break_up[2]), int(break_up[3]),))
+                    connection.commit()
+                except ValueError as e:
+                    print(f"Error with building: {e}, could not assign building value {pid, break_up[1], break_up[2], break_up[3]}")
     except Exception as e:
         print(f"Error when handling client: {e}")
     finally:

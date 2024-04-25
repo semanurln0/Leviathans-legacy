@@ -67,7 +67,6 @@ def main():
             received = client.recv(1024).decode("utf-8")
             if received.lower() == "accepted":
                 mplayer.set_parameters(client, username, password)
-                mplayer.get_buildings()
                 OverviewUIHexagon.overview_ui(mplayer)
             elif received.lower() == "rejected":
                 box = UIElements.TextBox(
