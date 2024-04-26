@@ -43,7 +43,7 @@ def handle_client(client_socket, addr):
             if break_up[0] == "login":
                 querier.execute("SELECT * FROM Players WHERE PName = ?", (break_up[1],))
                 data = querier.fetchone()
-                if data[0] == 0:
+                if data is None:
                     print('There is no profile named %s' % break_up[1])
                     response = "rejected"
                 else:

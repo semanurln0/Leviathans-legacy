@@ -70,12 +70,13 @@ def main():
                 OverviewUIHexagon.overview_ui(mplayer)
             elif received.lower() == "rejected":
                 box = UIElements.TextBox(
-                    center_position=(screen.get_width() / 2, 150),
+                    center_position=(screen.get_width() / 2, 200),
                     font_size=50,
                     bg_rgb=None,
                     text_rgb=RED,
-                    text="Leviathans legacy",)
+                    text="Wrong Password",)
                 box.draw(screen)
+                pygame.display.update()
                 pygame.time.wait(2000)
                 game_state = title_screen(screen, game_state)
 
