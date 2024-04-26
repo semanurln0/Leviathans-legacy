@@ -2,7 +2,17 @@ import socket
 import threading
 import sqlite3
 import os
+import time
 
+
+def performance_calc(func):
+    def wrapper():
+        t0 = time.time()
+        func()
+        t1 = time.time()
+        print(f"Time taken {(t1 - t0)} seconds")
+
+    return wrapper
 
 def connect_db():
     try:
@@ -65,10 +75,13 @@ def handle_client(client_socket, addr):
                 client_socket.send(response.encode("utf-8")[:1024])
             elif break_up[0] == "add_building":
                 try:
-                    querier.execute("INSERT INTO Buildings(PlayerID, BuildingNo, BuildingID, BuildingLevel) VALUES(?,?,?,?)", (pid, int(break_up[1]), int(break_up[2]), int(break_up[3]),))
+                    querier.execute(
+                        "INSERT INTO Buildings(PlayerID, BuildingNo, BuildingName, BuildingLevel) VALUES(?,?,?,?)",
+                        (pid, int(break_up[1]), str(break_up[2]), int(break_up[3]),))
                     connection.commit()
                 except ValueError as e:
-                    print(f"Error with building: {e}, could not assign building value {pid, break_up[1], break_up[2], break_up[3]}")
+                    print(
+                        f"Error with building: {e}, could not assign building value {pid, break_up[1], break_up[2], break_up[3]}")
     except Exception as e:
         print(f"Error when handling client: {e}")
     finally:
@@ -76,6 +89,7 @@ def handle_client(client_socket, addr):
         print(f"Connection to client ({addr[0]}:{addr[1]}) closed")
 
 
+@performance_calc
 def run_server():
     server_ip = "127.0.0.1"  # server hostname or IP address
     port = 8000  # server port number

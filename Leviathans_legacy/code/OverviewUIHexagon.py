@@ -307,8 +307,8 @@ def overview_ui(mplayer):
     clock = pygame.time.Clock()
     running = True
     data = mplayer.get_player_info()
-    mplayer.commit_building(5, 2, 3)
     print(data)
+    print(mplayer.get_buildings())
 
     while running:
         events = pygame.event.get()

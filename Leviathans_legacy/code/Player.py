@@ -43,12 +43,17 @@ class Player:
             self.energy = int(p_stats[2])
         finally:
             return p_stats
+        # sets player stats and returns an array of all stats
 
     def get_buildings(self):
         request = "info_buildings"
         self.client.send(request.encode("utf-8")[:1024])
         received = self.client.recv(1024).decode("utf-8")
+        p_stats = received.split(" ")
         print(received)
+        return p_stats
+        # returns array of buildings and their data in the form
+        # (1, 1, 'plantation', 1), (1, 2, 'cabins', 1)
 
     def show_food(self):
         return self.get_player_info()[0]
@@ -69,6 +74,7 @@ class Player:
     def commit_building(self, hexagon_no, building_id, building_level):
         request = "add_building" + " " + str(hexagon_no) + " " + str(building_id) + " " + str(building_level)
         self.client.send(request.encode("utf-8")[:1024])
+        # Add building to db, requires following data (pos in hex array, building_name, level of building)
 
 
 mplayer = Player()
