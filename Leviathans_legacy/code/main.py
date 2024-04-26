@@ -85,7 +85,6 @@ def main():
             print('closing from login screen')
             pygame.quit()
             quit()
-            
 
 
 def title_screen(screen, game_state):

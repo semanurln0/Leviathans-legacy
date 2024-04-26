@@ -1,5 +1,5 @@
 import time
-
+from abc import ABC
 import pygame
 import pygame.freetype
 from pygame.sprite import Sprite
@@ -152,10 +152,27 @@ class TextClickable(Sprite):
         surface.blit(self.image, self.rect)
 
 
-class InputBox:
+class Inputer(ABC):
+    def __init__(self, x, y, w, h):
+        self.rect = pygame.Rect(x, y, w, h)
+
+    def handle_event(self, event):
+        pass
+
+    def draw(self):
+        pass
+
+    def update(self):
+        pass
+
+    def text_return(self):
+        pass
+
+
+class InputBox(Inputer):
 
     def __init__(self, x, y, w, h, text=''):
-        self.rect = pygame.Rect(x, y, w, h)
+        super().__init__(x, y, w, h)
         self.color = "White"
         self.txt_color = "White"
         self.bg_color = BLUE
@@ -225,7 +242,6 @@ class InputBoxPass(InputBox):
 
     def __init__(self, x, y, w, h, text=''):
         super().__init__(x, y, w, h, text)
-        self.rect = pygame.Rect(x, y, w, h)
         self.color = "White"
         self.txt_color = "White"
         self.text = text

@@ -3,6 +3,7 @@ import threading
 import sqlite3
 import os
 import time
+import datetime
 
 
 def performance_calc(func):
@@ -13,6 +14,7 @@ def performance_calc(func):
         print(f"Time taken {(t1 - t0)} seconds")
 
     return wrapper
+
 
 def connect_db():
     try:
@@ -31,6 +33,7 @@ def connect_db():
 def handle_client(client_socket, addr):
     username = ""
     pid = 0
+    now = datetime.datetime.now()
     try:
         connection = connect_db()
         querier = connection.cursor()
@@ -82,6 +85,8 @@ def handle_client(client_socket, addr):
                 except ValueError as e:
                     print(
                         f"Error with building: {e}, could not assign building value {pid, break_up[1], break_up[2], break_up[3]}")
+            # if now.second == 30 or now.second == 0:
+            #    calc_changes(pid)
     except Exception as e:
         print(f"Error when handling client: {e}")
     finally:
@@ -113,6 +118,21 @@ def run_server():
         print(f"Error: {e}")
     finally:
         server.close()
+
+
+def calc_changes(pid):
+    producers = {
+        "plantation" : [],
+        "power_plant": [],
+        "abyssal_oil_refinery" : []
+    }
+
+    db = connect_db()
+    querier = db.cursor()
+    querier.execute("SELECT * FROM Buildings WHERE PlayerID = ?", (pid,))
+    data = querier.fetchall()
+
+
 
 
 run_server()
