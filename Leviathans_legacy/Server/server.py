@@ -73,7 +73,9 @@ def handle_client(client_socket, addr):
                 data = querier.fetchall()
                 response = ""
                 for row in data:
-                    response += str(row) + " "
+                    for value in row:
+                        response += str(value) + ", "
+                    response += " . "
                 print(response)
                 client_socket.send(response.encode("utf-8")[:1024])
             elif break_up[0] == "add_building":

@@ -146,3 +146,21 @@ class BuildingFactory:
             return DefensiveDome()
         else:
             raise ValueError(f"Unknown building type {building_type}")
+
+
+def create_building(building_type):
+    """Factory method to create buildings based on the type."""
+    if building_type == 'plantation':
+        return Plantation()
+    elif building_type == 'power_plant':
+        return PowerPlant()
+    elif building_type == 'cabins':
+        return Cabins()
+    elif building_type == 'barracks':
+        return Barracks()
+    elif building_type == 'abyssal_ore_refinery':
+        return AbyssalOreRefinery()
+    elif building_type == 'defensive_dome':
+        return DefensiveDome()
+    else:
+        raise ValueError(f"Unknown building type {building_type}")

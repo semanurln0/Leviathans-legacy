@@ -49,8 +49,8 @@ class Player:
         request = "info_buildings"
         self.client.send(request.encode("utf-8")[:1024])
         received = self.client.recv(1024).decode("utf-8")
-        p_stats = received.split(" ")
-        print(received)
+        p_stats = received.split(" . ")
+        p_stats = p_stats.pop(len(p_stats)-1)
         return p_stats
         # returns array of buildings and their data in the form
         # (1, 1, 'plantation', 1), (1, 2, 'cabins', 1)

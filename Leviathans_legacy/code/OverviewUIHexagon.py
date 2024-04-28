@@ -299,11 +299,21 @@ class OverviewUI:
             hexagon.draw(self.screen)
         self.popup.draw()
 
+    def get_building_in_hexes(self, mplayer):
+        buildings = mplayer.get_buildings()
+        print(buildings)
+        factory = BuildingFactory()
+        for building in buildings:
+            stats = building.split(", ")
+            print(stats[2])
+            self.hexagons[int(stats[1]) - 1].building = factory.create_building(stats[2])
+
 
 def overview_ui(mplayer):
     screen = pygame.display.set_mode((800, 600))
     pygame.display.set_caption("Game Overview UI")
     ui = OverviewUI(screen, 'BackgroundPlaceHolder.png', mplayer)
+    ui.get_building_in_hexes(mplayer)
     clock = pygame.time.Clock()
     running = True
     data = mplayer.get_player_info()
