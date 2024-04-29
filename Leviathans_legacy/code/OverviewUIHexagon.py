@@ -101,6 +101,9 @@ class Hexagon:
                 return True
         return False
 
+    def set_building(self, building):
+        self.building = building
+
 
 class Popup:
     def __init__(self, screen, rect, bg_color=(200, 200, 200)):
@@ -301,12 +304,10 @@ class OverviewUI:
 
     def get_building_in_hexes(self, mplayer):
         buildings = mplayer.get_buildings()
-        print(buildings)
         factory = BuildingFactory()
-        for building in buildings:
-            stats = building.split(", ")
-            print(stats[2])
-            self.hexagons[int(stats[1]) - 1].building = factory.create_building(stats[2])
+        for building in range(0, len(buildings) - 1):
+            stats = buildings[building].split(", ")
+            self.hexagons[int(stats[1]) - 1].set_building(factory.create_building(stats[2]))
 
 
 def overview_ui(mplayer):
@@ -318,7 +319,6 @@ def overview_ui(mplayer):
     running = True
     data = mplayer.get_player_info()
     print(data)
-    print(mplayer.get_buildings())
 
     while running:
         events = pygame.event.get()
