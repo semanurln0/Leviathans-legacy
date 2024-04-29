@@ -20,7 +20,6 @@ class Player:
             request = "info"
             self.client.send(request.encode("utf-8")[:1024])
             received = self.client.recv(1024).decode("utf-8")
-            print(received)
             p_stats = received.split(" ")
             self.food = int(p_stats[0])
             self.steel = int(p_stats[1])
@@ -36,7 +35,6 @@ class Player:
             request = "info"
             self.client.send(request.encode("utf-8")[:1024])
             received = self.client.recv(1024).decode("utf-8")
-            print(received)
             p_stats = received.split(" ")
             self.food = int(p_stats[0])
             self.steel = int(p_stats[1])
