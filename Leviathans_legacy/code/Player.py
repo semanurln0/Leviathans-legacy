@@ -73,6 +73,7 @@ class Player:
     def commit_building(self, hexagon_no, building_id, building_level):
         request = "add_building" + " " + str(hexagon_no) + " " + str(building_id) + " " + str(building_level)
         self.client.send(request.encode("utf-8")[:1024])
+        print(f'{request} is looks like this')
         # Add building to db, requires following data (pos in hex array, building_name, level of building)
 
 
