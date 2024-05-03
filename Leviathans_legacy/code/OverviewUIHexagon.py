@@ -7,6 +7,7 @@ from Player import mplayer
 
 next_hexagon_id = 0
 
+
 def hexagon_points(center, size):
     points = []
     for i in range(6):
@@ -17,8 +18,10 @@ def hexagon_points(center, size):
         points.append((x, y))
     return points
 
+
 def hexagon_update_action(func):
     """Decorator to log and send updates about hexagon changes based on the hexagon ID."""
+
     def wrapper(self, hexagon_id, selected, *args, **kwargs):
         # Call the actual function which might modify the hexagon
         result = func(self, hexagon_id, selected, *args, **kwargs)
@@ -26,12 +29,14 @@ def hexagon_update_action(func):
         # After change - commit changes to server
         if selected:
             building_type = type(selected).__name__.lower().replace(' ', '_')
-            building_stage = selected.building_stage +1 
+            building_stage = selected.building_stage + 1
             mplayer.commit_building(hexagon_id, building_type, building_stage)
             print(f"Sent update to server for Hexagon ID {hexagon_id}: {building_type}, Level: {building_stage}")
 
         return result
+
     return wrapper
+
 
 class Button:
     def __init__(self, label, rect, color):
@@ -51,6 +56,7 @@ class Button:
             print(f"{self.label} button clicked")
             return True
         return False
+
 
 class TopBar:
     def __init__(self, screen_width):
@@ -79,6 +85,7 @@ class TopBar:
                     return button.label
         return None
 
+
 class Hexagon:
     def __init__(self, center, size, color=(100, 100, 100), building=None):
         global next_hexagon_id
@@ -96,10 +103,12 @@ class Hexagon:
 
     def is_clicked(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if any(min(p[i] <= event.pos[i % 2] <= max(p[i] for p in self.points) for i in range(2)) for p in self.points):
+            if any(min(p[i] <= event.pos[i % 2] <= max(p[i] for p in self.points) for i in range(2)) for p in
+                   self.points):
                 self.clicked = not self.clicked
                 return True
         return False
+
 
 class Popup:
     def __init__(self, screen, rect, bg_color=(200, 200, 200)):
@@ -127,7 +136,8 @@ class Popup:
             time_text = f"Time left for upgrade: {remaining_time}s" if remaining_time > 0 else "Upgrade complete or available!"
             text_surface = self.font.render(time_text, True, (0, 0, 0))
             self.screen.blit(text_surface, (self.rect.x + 10, self.rect.y + 100))
-            text_surface = self.font.render(f"{building.__class__.__name__} - Stage: {building.building_stage}", True, (0, 0, 0))
+            text_surface = self.font.render(f"{building.__class__.__name__} - Stage: {building.building_stage}", True,
+                                            (0, 0, 0))
             self.screen.blit(text_surface, (self.rect.x + 10, self.rect.y + y_offset))
             upgrade_text = "Upgrade" if building.upgrade_possible else "Max Level"
             upgrade_button = self.font.render(upgrade_text, True, (255, 255, 255))
@@ -144,7 +154,6 @@ class Popup:
         close_text = self.font.render('X', True, (255, 255, 255))
         pygame.draw.rect(self.screen, (255, 0, 0), self.close_button_rect)
         self.screen.blit(close_text, (self.close_button_rect.x + 5, self.close_button_rect.y + 5))
-
 
     def handle_event(self, event):
         if not self.visible:
@@ -175,10 +184,11 @@ class Popup:
                     self.update_content(building)
                     return True
         return False
+
     @hexagon_update_action
     def log_building_change(self, hexagon_index, selected):
         self.hexagon_index = hexagon_index
-        self.selected_item =selected
+        self.selected_item = selected
         """Log building changes to the server. This method is a placeholder for actual server communication logic."""
         print(f" {selected} logged for hexagon {hexagon_index}.")
 
@@ -196,6 +206,7 @@ class Popup:
         if self.visible and self.selected_hexagon and self.selected_hexagon.building:
             self.selected_hexagon.building.check_upgrade()
             self.draw()
+
 
 class OverviewUI:
     def __init__(self, screen, background_filename, mplayer):
@@ -215,7 +226,6 @@ class OverviewUI:
         for i, label in enumerate(labels):
             button = Button(label, pygame.Rect(10 + i * 110, 10, 100, 40), (0, 120, 150))
             self.top_bar.add_button(button)
-
 
     def initialize_hexagons(self, screen_width, screen_height):
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -238,8 +248,10 @@ class OverviewUI:
             {'name': 'Power Plant', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'), 'create': PowerPlant},
             {'name': 'Cabins', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'), 'create': Cabins},
             {'name': 'Barracks', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'), 'create': Barracks},
-            {'name': 'Abyssal Ore Refinery', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'), 'create': AbyssalOreRefinery},
-            {'name': 'Defensive Dome', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'), 'create': DefensiveDome}
+            {'name': 'Abyssal Ore Refinery', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'),
+             'create': AbyssalOreRefinery},
+            {'name': 'Defensive Dome', 'image': self.load_image(sprites_dir, 'SimpleBuilding.png'),
+             'create': DefensiveDome}
         ]
         self.popup.set_building_options(building_options)
 
@@ -261,7 +273,7 @@ class OverviewUI:
         except pygame.error as e:
             print(f"Unable to load image at {path}. Error: {e}")
             raise SystemExit(e)
-    
+
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.QUIT:
@@ -317,7 +329,6 @@ class OverviewUI:
                         print(f"Invalid hexagon ID: {hex_id}")
                 else:
                     print(f"Invalid building data format: {details}")
-
 
 
 def overview_ui(mplayer):

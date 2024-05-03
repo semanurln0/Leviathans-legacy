@@ -4,6 +4,7 @@ from Player import mplayer  # This assumes you have a player class that includes
 import time
 from abc import ABC, abstractmethod
 
+
 class AbstractBuilding(ABC):
     @abstractmethod
     def build(self):
@@ -107,15 +108,16 @@ class Plantation(Buildings):
         self.build_cost = 20
         self.build_time = 30
         self.production_rate = 5
+
     def set_attributes(self, build_cost, build_time, upgrade_possible, buyable, building_stage,
-                       increase_rate_of_build_time,production_rate):
+                       increase_rate_of_build_time, production_rate):
         self.build_cost = build_cost
         self.build_time = build_time
         self.upgrade_possible = upgrade_possible
         self.buyable = buyable
         self.building_stage = building_stage
         self.increase_rate_of_build_time = increase_rate_of_build_time
-        self.production_rate= production_rate
+        self.production_rate = production_rate
 
 
 class PowerPlant(Buildings):
@@ -124,15 +126,16 @@ class PowerPlant(Buildings):
         self.build_cost = 40
         self.build_time = 45
         self.energy_output = 100
+
     def set_attributes(self, build_cost, build_time, upgrade_possible, buyable, building_stage,
-                       increase_rate_of_build_time,energy_output):
+                       increase_rate_of_build_time, energy_output):
         self.build_cost = build_cost
         self.build_time = build_time
         self.upgrade_possible = upgrade_possible
         self.buyable = buyable
         self.building_stage = building_stage
         self.increase_rate_of_build_time = increase_rate_of_build_time
-        self.energy_output=energy_output
+        self.energy_output = energy_output
 
 
 class Cabins(Buildings):
@@ -155,15 +158,16 @@ class AbyssalOreRefinery(Buildings):
         self.build_cost = 70
         self.build_time = 80
         self.ore_processing_rate = 15
+
     def set_attributes(self, build_cost, build_time, upgrade_possible, buyable, building_stage,
-                       increase_rate_of_build_time,ore_processing_rate):
+                       increase_rate_of_build_time, ore_processing_rate):
         self.build_cost = build_cost
         self.build_time = build_time
         self.upgrade_possible = upgrade_possible
         self.buyable = buyable
         self.building_stage = building_stage
         self.increase_rate_of_build_time = increase_rate_of_build_time
-        self.ore_processing_rate=ore_processing_rate
+        self.ore_processing_rate = ore_processing_rate
 
 
 class DefensiveDome(Buildings):
@@ -172,15 +176,16 @@ class DefensiveDome(Buildings):
         self.build_cost = 100
         self.build_time = 90
         self.defense_capability = 200
+
     def set_attributes(self, build_cost, build_time, upgrade_possible, buyable, building_stage,
-                       increase_rate_of_build_time,defense_capability):
+                       increase_rate_of_build_time, defense_capability):
         self.build_cost = build_cost
         self.build_time = build_time
         self.upgrade_possible = upgrade_possible
         self.buyable = buyable
         self.building_stage = building_stage
         self.increase_rate_of_build_time = increase_rate_of_build_time
-        self.defense_capability=defense_capability
+        self.defense_capability = defense_capability
 
 
 class BuildingFactory:
