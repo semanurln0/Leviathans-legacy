@@ -4,7 +4,6 @@ from Player import mplayer  # This assumes you have a player class that includes
 import time
 from abc import ABC, abstractmethod
 
-
 class AbstractBuilding(ABC):
     @abstractmethod
     def build(self):
@@ -104,88 +103,84 @@ class Buildings(AbstractBuilding):
 
 class Plantation(Buildings):
     def __init__(self):
-        super().__init__("SimpleBuilding.png")
+        super().__init__("Plantation.png")
         self.build_cost = 20
         self.build_time = 30
         self.production_rate = 5
-
     def set_attributes(self, build_cost, build_time, upgrade_possible, buyable, building_stage,
-                       increase_rate_of_build_time, production_rate):
+                       increase_rate_of_build_time,production_rate):
         self.build_cost = build_cost
         self.build_time = build_time
         self.upgrade_possible = upgrade_possible
         self.buyable = buyable
         self.building_stage = building_stage
         self.increase_rate_of_build_time = increase_rate_of_build_time
-        self.production_rate = production_rate
+        self.production_rate= production_rate
 
 
 class PowerPlant(Buildings):
     def __init__(self):
-        super().__init__("SimpleBuilding.png")
+        super().__init__("PowerPlant.png")
         self.build_cost = 40
         self.build_time = 45
         self.energy_output = 100
-
     def set_attributes(self, build_cost, build_time, upgrade_possible, buyable, building_stage,
-                       increase_rate_of_build_time, energy_output):
+                       increase_rate_of_build_time,energy_output):
         self.build_cost = build_cost
         self.build_time = build_time
         self.upgrade_possible = upgrade_possible
         self.buyable = buyable
         self.building_stage = building_stage
         self.increase_rate_of_build_time = increase_rate_of_build_time
-        self.energy_output = energy_output
+        self.energy_output=energy_output
 
 
 class Cabins(Buildings):
     def __init__(self):
-        super().__init__("SimpleBuilding.png")
+        super().__init__("Cabins.png")
         self.build_cost = 30
         self.build_time = 20
 
 
 class Barracks(Buildings):
     def __init__(self):
-        super().__init__("SimpleBuilding.png")
+        super().__init__("Barracks.png")
         self.build_cost = 50
         self.build_time = 60
 
 
 class AbyssalOreRefinery(Buildings):
     def __init__(self):
-        super().__init__("SimpleBuilding.png")
+        super().__init__("AbyssalOreRefinery.png")
         self.build_cost = 70
         self.build_time = 80
         self.ore_processing_rate = 15
-
     def set_attributes(self, build_cost, build_time, upgrade_possible, buyable, building_stage,
-                       increase_rate_of_build_time, ore_processing_rate):
+                       increase_rate_of_build_time,ore_processing_rate):
         self.build_cost = build_cost
         self.build_time = build_time
         self.upgrade_possible = upgrade_possible
         self.buyable = buyable
         self.building_stage = building_stage
         self.increase_rate_of_build_time = increase_rate_of_build_time
-        self.ore_processing_rate = ore_processing_rate
+        self.ore_processing_rate=ore_processing_rate
 
 
 class DefensiveDome(Buildings):
     def __init__(self):
-        super().__init__("SimpleBuilding.png")
+        super().__init__("DefensiveDome.png")
         self.build_cost = 100
         self.build_time = 90
         self.defense_capability = 200
-
     def set_attributes(self, build_cost, build_time, upgrade_possible, buyable, building_stage,
-                       increase_rate_of_build_time, defense_capability):
+                       increase_rate_of_build_time,defense_capability):
         self.build_cost = build_cost
         self.build_time = build_time
         self.upgrade_possible = upgrade_possible
         self.buyable = buyable
         self.building_stage = building_stage
         self.increase_rate_of_build_time = increase_rate_of_build_time
-        self.defense_capability = defense_capability
+        self.defense_capability=defense_capability
 
 
 class BuildingFactory:
@@ -193,7 +188,7 @@ class BuildingFactory:
         """Factory method to create buildings based on the type."""
         if building_type == 'plantation':
             return Plantation()
-        elif building_type == 'power_plant':
+        elif building_type == 'powerplant':
             return PowerPlant()
         elif building_type == 'cabins':
             return Cabins()
@@ -205,3 +200,4 @@ class BuildingFactory:
             return DefensiveDome()
         else:
             raise ValueError(f"Unknown building type {building_type}")
+            
