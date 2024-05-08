@@ -180,6 +180,31 @@ if break_up[0] == "login": # break_up is split received data
             response = "rejected"
     client_socket.send(response.encode("utf-8")[:1024])
 ```
+
+### Unit testing
+
+* Testing is done using unittest.py. Most functions and methods are tested, including their object creation, updating of UI and event handling. This is done via assertions and mocking.
+
+```python
+class TestHexagon(unittest.TestCase):
+
+    def setUp(self):
+        self.hexagon = Hexagon((100, 100), 50)
+
+    def test_draw(self):
+        # Test if draw method correctly draws the hexagon on the screen
+        screen = MagicMock(name='Screen')
+        self.hexagon.draw(screen)
+        screen.draw.polygon.assert_called_once()
+
+    def test_is_clicked(self):
+        # Test if is_clicked method returns True when the hexagon is clicked
+        event = MagicMock(name='Event')
+        event.type = pygame.MOUSEBUTTONDOWN
+        event.pos = (100, 100)
+        self.assertTrue(self.hexagon.is_clicked(event))
+```
+
 ## 3. **Results and conclusions**
 
 ## 3.1. **Results**
