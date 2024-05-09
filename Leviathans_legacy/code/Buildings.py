@@ -194,9 +194,9 @@ class BuildingFactory:
             return Cabins()
         elif building_type == 'barracks':
             return Barracks()
-        elif building_type == 'abyssal_ore_refinery':
+        elif building_type == 'abyssalorerefinery':
             return AbyssalOreRefinery()
-        elif building_type == 'defensive_dome':
+        elif building_type == 'defensivedome':
             return DefensiveDome()
         else:
             raise ValueError(f"Unknown building type {building_type}")
