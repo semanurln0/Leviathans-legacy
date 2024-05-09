@@ -188,7 +188,7 @@ class BuildingFactory:
         """Factory method to create buildings based on the type."""
         if building_type == 'plantation':
             return Plantation()
-        elif building_type == 'power_plant':
+        elif building_type == 'powerplant':
             return PowerPlant()
         elif building_type == 'cabins':
             return Cabins()
