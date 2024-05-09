@@ -262,6 +262,7 @@ class InputBoxPass(InputBox):
                 # Toggle the active variable.
                 self.active = not self.active
                 self.text = ""
+                self.__actual_text = ""
             else:
                 self.active = False
         if event.type == pygame.KEYDOWN:
