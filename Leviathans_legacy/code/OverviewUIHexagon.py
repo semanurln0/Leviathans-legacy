@@ -73,6 +73,8 @@ class Button:
     def is_clicked(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos):
             print(f"{self.label} button clicked")
+            if self.label == "Exit":
+                quit()
             return True
         return False
 
