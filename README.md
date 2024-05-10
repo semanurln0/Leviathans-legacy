@@ -181,9 +181,14 @@ if break_up[0] == "login": # break_up is split received data
     client_socket.send(response.encode("utf-8")[:1024])
 ```
 
-### Unit testing
-
-* Testing is done using unittest.py. Most functions and methods are tested, including their object creation, updating of UI and event handling. This is done via assertions and mocking.
+### Unit Testing Overview
+Important note; We have 2 different Test file now. 
+    1) test_game.py is just using our manual values without changing them so this one only test our game functions. /for this stage.
+    2) test_game_random.py is testing all the functions with random values. If any value give error it give output and continue try same function with another value (max 3 try.). So this test for NEXT STAGES upgradefor our game.
+--Unit testing is performed using the unittest framework in Python.
+--Each test class is dedicated to testing specific functionalities of the codebase.
+--Tests cover a wide range of scenarios, including object creation, UI updating, event handling, and method behaviors.
+--Mocking is utilized to isolate and test individual components, ensuring reliable and independent test results.
 
 ```python
 class TestHexagon(unittest.TestCase):
@@ -204,6 +209,9 @@ class TestHexagon(unittest.TestCase):
         event.pos = (100, 100)
         self.assertTrue(self.hexagon.is_clicked(event))
 ```
+--Each test method is documented to describe the specific functionality being tested and the expected behavior.
+--Assertions are used to validate expected outcomes, ensuring code correctness and reliability.
+--Test suites are organized by functionality and executed using custom test runners to provide comprehensive test coverage.
 
 ## 3. **Results and conclusions**
 
