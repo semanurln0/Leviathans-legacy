@@ -5,6 +5,14 @@
 ## Created by Mesut Erkin Özokutgen, Nedas Alijošius and Sema Nur Alan
 
 ---
+### Screenshots of app
+
+1. [Main menu](Leviathans_legacy/ProgramImages/mainmenu.png)
+2. [Main game screen](Leviathans_legacy/ProgramImages/maingamescreen.png)
+3. [Building interface initial](Leviathans_legacy/ProgramImages/buildingwithplaceholdericons.png)
+4. [Building interface with built building](Leviathans_legacy/ProgramImages/building.png)
+5. [Server terminal with connection](Leviathans_legacy/ProgramImages/server.png)
+---
 
 ## 1. **Introduction**
 
