@@ -1,7 +1,7 @@
 import pygame
 import pygame.freetype
 import socket
-
+from Soldiers import Army
 
 class Player:
     # Our player info
@@ -13,6 +13,14 @@ class Player:
         self.client = client
         self.__username = username
         self.__password = password
+        self.army= Army(self)
+
+    def can_afford(self, food_cost, steel_cost):
+        return self.food >= food_cost and self.steel >= steel_cost
+
+    def deduct_materials(self, food_cost, steel_cost):
+        self.food -= food_cost
+        self.steel -= steel_cost
 
     def get_player_info(self):
         p_stats = []

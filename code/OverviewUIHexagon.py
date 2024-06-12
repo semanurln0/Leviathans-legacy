@@ -4,10 +4,53 @@ import math
 from Buildings import Plantation, PowerPlant, Cabins, Barracks, AbyssalOreRefinery, DefensiveDome
 from Buildings import BuildingFactory
 from Player import mplayer
+from Soldiers import Army
 
 next_hexagon_id = 0
+ArmyPossible = False
+class InputBox:
+    def __init__(self, x, y, w, h, text=''):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.color_inactive = pygame.Color('lightskyblue3')
+        self.color_active = pygame.Color('dodgerblue2')
+        self.color = self.color_inactive
+        self.text = text
+        self.font = pygame.font.Font(None, 32)
+        self.txt_surface = self.font.render(text, True, self.color)
+        self.active = False
 
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # If the user clicked on the input box rect.
+            if self.rect.collidepoint(event.pos):
+                # Toggle the active variable.
+                self.active = not self.active
+            else:
+                self.active = False
+            # Change the current color of the input box.
+            self.color = self.color_active if self.active else self.color_inactive
+        if event.type == pygame.KEYDOWN:
+            if self.active:
+                if event.key == pygame.K_RETURN:
+                    print(self.text)
+                elif event.key == pygame.K_BACKSPACE:
+                    self.text = self.text[:-1]
+                else:
+                    self.text += event.unicode
+                # Re-render the text.
+                self.txt_surface = self.font.render(self.text, True, self.color)
 
+    def update(self):
+        # Resize the box if the text is too long.
+        width = max(100, self.txt_surface.get_width()+10)
+        self.rect.w = width
+
+    def draw(self, screen):
+        # Blit the text.
+        screen.blit(self.txt_surface, (self.rect.x+5, self.rect.y+5))
+        # Blit the rect.
+        pygame.draw.rect(screen, self.color, self.rect, 2)
+        
 def hexagon_points(center, size):
     points = []
     for i in range(6):
@@ -255,6 +298,120 @@ class Popup:
             self.selected_hexagon.building.check_upgrade()
         self.draw()
 
+class ArmyPopup:
+    def __init__(self, screen, rect, mplayer, bg_color=(200, 200, 200)):
+        self.screen = screen
+        self.rect = rect
+        self.mplayer = mplayer
+        self.bg_color = bg_color
+        self.font = pygame.font.Font(None, 24)
+        self.visible = False
+        self.close_button_rect = pygame.Rect(self.rect.right - 30, self.rect.top, 30, 30)
+        self.create_buttons = []
+        self.input_boxes = []
+        self.init_ui_elements()
+        self.unit_count_labels = {}
+        self.current_soldiers = []
+
+    def init_ui_elements(self):
+        y_offset = 40
+        for unit_id, unit_data in self.mplayer.army.soldiers.items():
+            name_label = self.font.render(unit_data['name'], True, (0, 0, 0))
+            name_label_rect = pygame.Rect(self.rect.x + 10, self.rect.y + y_offset, 150, 30)
+            create_button_rect = pygame.Rect(self.rect.x + 330, self.rect.y + y_offset, 100, 30)
+            count_input_rect = pygame.Rect(self.rect.x + 220, self.rect.y + y_offset, 100, 30)
+
+            self.create_buttons.append((unit_id, create_button_rect))
+            self.input_boxes.append((unit_id, InputBox(count_input_rect.x, count_input_rect.y, count_input_rect.w, count_input_rect.h)))
+            y_offset += 40
+
+    def draw(self):
+        if not self.visible:
+            return
+
+        pygame.draw.rect(self.screen, self.bg_color, self.rect)
+
+        for unit_id, create_button_rect in self.create_buttons:
+            create_button_text = self.font.render("Create", True, (255, 255, 255))
+            pygame.draw.rect(self.screen, (0, 200, 0), create_button_rect)
+            self.screen.blit(create_button_text, (create_button_rect.x + 5, create_button_rect.y + 5))
+
+        for unit_id, input_box in self.input_boxes:
+            input_box.draw(self.screen)
+            unit_name_text = self.font.render(self.mplayer.army.soldiers[unit_id]['name'], True, (0, 0, 0))
+            self.screen.blit(unit_name_text, (input_box.rect.x - 190, input_box.rect.y + 5))
+            current_soldiers_text = self.font.render(str(self.mplayer.army.soldiers[unit_id]['count']), True, (0, 0, 0))
+            self.screen.blit(current_soldiers_text, (input_box.rect.x - 215, input_box.rect.y + 5))
+
+        close_text = self.font.render('X', True, (255, 255, 255))
+        pygame.draw.rect(self.screen, (255, 0, 0), self.close_button_rect)
+        self.screen.blit(close_text, (self.close_button_rect.x + 5, self.close_button_rect.y + 5))
+
+    def handle_event(self, event):
+        if not self.visible:
+            return False
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.close_button_rect.collidepoint(event.pos):
+                self.visible = False
+                return True
+
+            for unit_id, create_button_rect in self.create_buttons:
+                if create_button_rect.collidepoint(event.pos):
+                    for uid, input_box in self.input_boxes:
+                        if uid == unit_id:
+                            count = int(input_box.text) if input_box.text.isdigit() else 0
+                            self.mplayer.army.add_soldier(unit_id, count)
+                            self.update_unit_count_label(unit_id)
+                            input_box.text = ""
+                            input_box.txt_surface = input_box.font.render(input_box.text, True, input_box.color)
+                            return True
+
+        for unit_id, input_box in self.input_boxes:
+            input_box.handle_event(event)
+
+        return False
+
+    def get_count_from_input(self, unit_id):
+        for uid, rect in self.count_input_boxes:
+            if uid == unit_id:
+                input_box_text = self.font.render("Count", True, (0, 0, 0))
+                input_rect = pygame.Rect(rect.x, rect.y, rect.width, rect.height)
+                pygame.draw.rect(self.screen, (255, 255, 255), input_rect)
+                self.screen.blit(input_box_text, (input_rect.x + 5, input_rect.y + 5))
+                pygame.display.update()
+                count = ""
+                while True:
+                    event = pygame.event.wait()
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_RETURN:
+                            break
+                        elif event.key == pygame.K_BACKSPACE:
+                            count = count[:-1]
+                        else:
+                            count += event.unicode
+                        input_box_text = self.font.render(count, True, (0, 0, 0))
+                        pygame.draw.rect(self.screen, (255, 255, 255), input_rect)
+                        self.screen.blit(input_box_text, (input_rect.x + 5, input_rect.y + 5))
+                        pygame.display.update()
+                return count
+        return "0"
+    def update_unit_count_label(self, unit_id):
+        self.unit_count_labels[unit_id] = self.font.render(str(self.mplayer.army.soldiers[unit_id]['count']), True, (0, 0, 0))
+
+
+    def set_options(self, options):
+        self.options = options
+
+
+    
+    def update(self):
+        if self.visible:
+            for _, input_box in self.input_boxes:
+                input_box.update()
+            self.draw()
+
+
 
 class OverviewUI:
     def __init__(self, screen, background_filename, mplayer):
@@ -268,9 +425,10 @@ class OverviewUI:
         self.load_background(screen.get_width(), screen.get_height())
         self.popup = Popup(screen, pygame.Rect(150, 100, 500, 400))
         self.hexagons = self.initialize_hexagons(screen.get_width(), screen.get_height())
+        self.army_popup = ArmyPopup(screen, pygame.Rect(200, 150, 500, 400), mplayer)
 
     def initialize_buttons(self):
-        labels = ['Account', 'World Map', 'Leaderboard', 'Settings', 'Help', 'Exit']
+        labels = ['Account', 'World Map','Army', 'Leaderboard', 'Settings', 'Help', 'Exit']
         for i, label in enumerate(labels):
             button = Button(label, pygame.Rect(10 + i * 110, 10, 100, 40), (0, 120, 150))
             self.top_bar.add_button(button)
@@ -351,22 +509,30 @@ class OverviewUI:
 
             # Process events for the top bar first to handle any UI interactions
             self.top_bar.handle_events([event])
-
+            button_label = self.top_bar.handle_events([event])
+            if button_label == 'Army':
+                if any(isinstance(hexagon.building, Barracks) for hexagon in self.hexagons):
+                    self.army_popup.visible = True
+                    print(f'army popup visible')
+            if self.army_popup.visible:
+                if self.army_popup.handle_event(event):
+                    continue
             # Process events for the popup if it's visible
             if self.popup.visible:
                 if self.popup.handle_event(event):
                     continue  # Skip other interactions if the popup was interacted with
 
             # Process hexagon clicks only if the popup is not interacting
-            for hexagon in self.hexagons:
-                if hexagon.is_clicked(event):
-                    self.popup.selected_hexagon = hexagon
-                    self.popup.visible = True
-                    if hexagon.building:
-                        self.popup.update_content(hexagon.building)
-                    else:
-                        self.popup.update_content()
-                    break
+            if not self.army_popup.visible and not self.popup.visible:
+                for hexagon in self.hexagons:
+                    if hexagon.is_clicked(event):
+                        self.popup.selected_hexagon = hexagon
+                        self.popup.visible = True
+                        if hexagon.building:
+                            self.popup.update_content(hexagon.building)
+                        else:
+                            self.popup.update_content()
+                        break
 
     def draw(self, mplayer):
         """Draw the entire game UI, including the background and all UI elements."""
@@ -375,6 +541,7 @@ class OverviewUI:
         for hexagon in self.hexagons:
             hexagon.draw(self.screen)
         self.popup.draw()
+        self.army_popup.draw()
 
 
     def get_building_in_hexes(self, mplayer):
@@ -415,10 +582,14 @@ def overview_ui(mplayer):
     while running:
         events = pygame.event.get()
         ui.handle_events(events)
+        
+
         ui.popup.update()
+        ui.army_popup.update()
         ui.draw(mplayer)
         pygame.display.flip()
         clock.tick(30)
+
 
     pygame.quit()
 
