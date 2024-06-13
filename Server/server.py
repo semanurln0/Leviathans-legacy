@@ -37,7 +37,6 @@ def handle_client(client_socket, addr):
         connection = connect_db()
         querier = connection.cursor()
         while True:
-            now = datetime.datetime.now()
             # receive and print client messages
             request = client_socket.recv(1024).decode("utf-8")
             if request.lower() == "close":
@@ -89,8 +88,12 @@ def handle_client(client_socket, addr):
                 except ValueError as e:
                     print(
                         f"Error with building: {e}, could not assign building value {pid, break_up[1], break_up[2], break_up[3]}")
-            if now.second == 30 or now.second == 0:
-                pass
+            elif break_up[0] == "update":
+                try:
+                    calc_changes(connection, pid)
+                except ValueError as e:
+                    print(
+                        f"Error with updating: {e}, could not update")
 
     except Exception as e:
         print(f"Error when handling client: {e}")
@@ -125,16 +128,15 @@ def run_server():
         server.close()
 
 
-def calc_changes(pid):
+def calc_changes(db, pid):
     producers = [
         "plantation",
         "power_plant",
         "abyssal_ore_refinery"
     ]
-    food_change = ""
-    energy_change = ""
-    steel_change = ""
-    db = connect_db()
+    food_change = 0
+    energy_change = 0
+    steel_change = 0
     querier = db.cursor()
     querier.execute("SELECT * FROM Buildings WHERE PlayerID = ?", (pid,))
     data = querier.fetchall()
@@ -142,27 +144,27 @@ def calc_changes(pid):
         for producer in producers:
             if arrays[2] == producer:
                 if arrays[2] == "plantation":
-                    food_change = 5
+                    food_change += 5
                 if arrays[2] == "power_pant":
-                    energy_change = 100
+                    energy_change += 100
                 if arrays[2] == "abyssal_ore_refinery":
-                    steel_change = 15
-    commit_pid_changes(pid, food_change, energy_change, steel_change)
+                    steel_change += 15
+    querier.close()
+    commit_pid_changes(db, pid, food_change, energy_change, steel_change)
 
 
-def commit_pid_changes(pid, food_change, energy_change, steel_change):
-    db = connect_db()
+def commit_pid_changes(db,pid, food_change, energy_change, steel_change):
     querier = db.cursor()
     querier.execute("SELECT * FROM Players WHERE PlayerID = ?", (pid,))
     data = querier.fetchone()
     print(data)
     food = int(data[3]) + food_change
-    energy = int(data[4]) + energy_change
-    steel = int(data[5]) + steel_change
+    steel = int(data[4]) + steel_change
+    energy = int(data[5]) + energy_change
     print(food, energy, steel)
-    querier.execute("UPDATE Players SET Food = ? WHERE PlayerID = ?", (food, pid,))
+    querier.execute("UPDATE Players SET Food = ?, Metal = ?, Energy = ? WHERE PlayerID = ?", (food, steel, energy, pid,))
     db.commit()
-    db.close()
+    print("commited")
 
 
 run_server()

@@ -5,6 +5,8 @@ from Buildings import Plantation, PowerPlant, Cabins, Barracks, AbyssalOreRefine
 from Buildings import BuildingFactory
 from Player import mplayer
 from Soldiers import Army
+import datetime
+
 
 next_hexagon_id = 0
 ArmyPossible = False
@@ -579,16 +581,22 @@ def overview_ui(mplayer):
     data = mplayer.get_player_info()
     print(data)
 
+    time_passed = 0
     while running:
+        now = datetime.datetime.now()
         events = pygame.event.get()
         ui.handle_events(events)
-        
-
         ui.popup.update()
         ui.army_popup.update()
         ui.draw(mplayer)
         pygame.display.flip()
         clock.tick(30)
+        if now.second%5 == 0 and now.second > time_passed:
+            time_passed = now.second
+            mplayer.update_player()
+            pygame.time.delay(100)
+            mplayer.get_player_info()
+
 
 
     pygame.quit()

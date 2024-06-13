@@ -84,6 +84,9 @@ class Player:
         print(f'{request} is looks like this')
         # Add building to db, requires following data (pos in hex array, building_name, level of building)
 
+    def update_player(self):
+        request = "update"
+        self.client.send(request.encode("utf-8")[:1024])
 
 mplayer = Player()
 
