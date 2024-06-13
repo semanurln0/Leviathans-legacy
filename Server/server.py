@@ -150,14 +150,15 @@ def calc_changes(db, pid):
                 if arrays[2] == "abyssal_ore_refinery":
                     steel_change += 15
     querier.close()
-    commit_pid_changes(db, pid, food_change, energy_change, steel_change)
+    print(food_change, steel_change, energy_change)
+    commit_pid_changes(db, pid, food_change, steel_change, energy_change)
 
 
-def commit_pid_changes(db,pid, food_change, energy_change, steel_change):
+def commit_pid_changes(db,pid, food_change, steel_change, energy_change):
     querier = db.cursor()
     querier.execute("SELECT * FROM Players WHERE PlayerID = ?", (pid,))
     data = querier.fetchone()
-    print(data)
+    print(data[3])
     food = int(data[3]) + food_change
     steel = int(data[4]) + steel_change
     energy = int(data[5]) + energy_change
