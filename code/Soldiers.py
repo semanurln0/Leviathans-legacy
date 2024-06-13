@@ -29,11 +29,9 @@ class Army:
                 print(f"Not enough resources to add soldiers.{self.soldiers[unit_id]['name']}")
 
     def remove_soldier(self, unit_id, count):
-        if unit_id in self.soldiers and self.soldiers[unit_id]['count'] >= count:
-            self.soldiers[unit_id]['count'] -= count
+        if unit_id in self.soldiers and self.soldiers[unit_id]['count'] > 0:
+            self.soldiers[unit_id]['count'] = max(0, self.soldiers[unit_id]['count'] - count)
             print(f"Removed {count} {self.soldiers[unit_id]['name']}(s). New count: {self.soldiers[unit_id]['count']}")
-        else:
-            print("Not enough soldiers to remove.")
 
     def get_units_total_defense(self, unit_id):
         if unit_id in self.soldiers:
@@ -50,37 +48,55 @@ class Army:
             if unit_id in self.soldiers:
                 self.soldiers[unit_id]['count'] = count
         print(f"Received army info from server: {army_info}")
+    def is_defeated(self):
+        return all(soldier['count'] == 0 for soldier in self.soldiers.values())
 
 
     def battle(self, enemy_army):
-            while not self.is_defeated() and not enemy_army.is_defeated():
-                attacker_id = random.choice(list(self.soldiers.keys()))
-                defender_id = random.choice(list(enemy_army.soldiers.keys()))
+        while not self.is_defeated() and not enemy_army.is_defeated():
+            # Get attacker and defender units with counts greater than 0
+            attacker_units = [unit_id for unit_id in self.soldiers if self.soldiers[unit_id]['count'] > 0]
+            defender_units = [unit_id for unit_id in enemy_army.soldiers if enemy_army.soldiers[unit_id]['count'] > 0]
 
-                attacker = self.soldiers[attacker_id]['type']
-                defender = enemy_army.soldiers[defender_id]['type']
+            if not attacker_units or not defender_units:
+                break
 
-                if self.soldiers[attacker_id]['count'] > 0 and enemy_army.soldiers[defender_id]['count'] > 0:
-                    damage = max(0, attacker.attack_power - defender.defense)
-                    units_lost = math.floor(damage / defender.health)
-                    enemy_army.remove_soldier(defender_id, units_lost)
-                    print(f"{attacker.name} attacked {defender.name}, dealing {damage} damage, causing {units_lost} units to be lost.")
+            attacker_id = random.choice(attacker_units)
+            defender_id = random.choice(defender_units)
 
-                # Switch roles
-                attacker_id = random.choice(list(enemy_army.soldiers.keys()))
-                defender_id = random.choice(list(self.soldiers.keys()))
+            attacker = self.soldiers[attacker_id]
+            defender = enemy_army.soldiers[defender_id]
 
-                attacker = enemy_army.soldiers[attacker_id]['type']
-                defender = self.soldiers[defender_id]['type']
+            if self.soldiers[attacker_id]['count'] > 0 and enemy_army.soldiers[defender_id]['count'] > 0:
+                damage = max(0, attacker['attack_power'] - defender['defense'])
+                units_lost = min(defender['count'], math.floor(damage / defender['health']))
+                enemy_army.remove_soldier(defender_id, units_lost)
+                print(f"{attacker['name']} attacked {defender['name']}, dealing {damage} damage, causing {units_lost} units to be lost.")
 
-                if enemy_army.soldiers[attacker_id]['count'] > 0 and self.soldiers[defender_id]['count'] > 0:
-                    damage = max(0, attacker.attack_power - defender.defense)
-                    units_lost = math.floor(damage / defender.health)
-                    self.remove_soldier(defender_id, units_lost)
-                    print(f"{attacker.name} attacked {defender.name}, dealing {damage} damage, causing {units_lost} units to be lost.")
+            # Switch roles
+            if enemy_army.is_defeated():
+                break
 
-            if self.is_defeated():
-                print("Our army has been defeated!")
-            else:
-                print("Enemy army has been defeated!")
+            attacker_units = [unit_id for unit_id in enemy_army.soldiers if enemy_army.soldiers[unit_id]['count'] > 0]
+            defender_units = [unit_id for unit_id in self.soldiers if self.soldiers[unit_id]['count'] > 0]
+
+            if not attacker_units or not defender_units:
+                break
+
+            attacker_id = random.choice(attacker_units)
+            defender_id = random.choice(defender_units)
+
+            attacker = enemy_army.soldiers[attacker_id]
+            defender = self.soldiers[defender_id]
+
+            if enemy_army.soldiers[attacker_id]['count'] > 0 and self.soldiers[defender_id]['count'] > 0:
+                damage = max(0, attacker['attack_power'] - defender['defense'])
+                units_lost = min(defender['count'], math.floor(damage / defender['health']))
+                self.remove_soldier(defender_id, units_lost)
+                print(f"{attacker['name']} attacked {defender['name']}, dealing {damage} damage, causing {units_lost} units to be lost.")
+
+        if self.is_defeated():
+            print("Our army has been defeated!")
+        else:
+            print("Enemy army has been defeated!")
 
