@@ -2,7 +2,9 @@
 
 ## A python idle game with online capabilites 
 
+## Made for Educational purposes in Vilnius Tech university
 ## Created by Mesut Erkin Özokutgen, Nedas Alijošius and Sema Nur Alan
+             (Backend Responsible), (Server & Database), (Graphics and Unit-Tester)
 
 ---
 ### Screenshots of app
