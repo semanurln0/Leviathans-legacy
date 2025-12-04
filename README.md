@@ -1,6 +1,6 @@
-# ***Leviethans legacy***
+# ***Leviathans legacy***
 
-## A python idle game with online capabilites 
+## A python idle game with online capabilites. Not & Won't completed
 
 ## Made for Educational purposes in Vilnius Tech university
 ## Created by Mesut Erkin Özokutgen, Nedas Alijošius and Sema Nur Alan
